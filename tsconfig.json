@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "rootDir": "./loadtest/",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  }
+}
