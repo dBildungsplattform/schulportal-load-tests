@@ -1,10 +1,10 @@
 import { check, fail, group, sleep } from "k6";
-import http from "k6/http";
 import { SharedArray } from "k6/data";
+import http from "k6/http";
+import { getDefaultOptions, getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
-import { prettyLog } from "../util/debug.ts";
 
-const SPSH_BASE = __ENV["SPSH_BASE"];
+const SPSH_BASE = getFrontendUrl();
 // not needed yet
 // const KC_BASE = __ENV["KC_BASE"];
 
@@ -20,6 +20,10 @@ const users = new SharedArray("users", () => {
   return f;
 });
 
+export const options = {
+  ...getDefaultOptions(),
+};
+
 export default function main() {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
@@ -32,7 +36,6 @@ export default function main() {
       "page loaded": () => pageResponse.status === 200,
     });
     loadLinkedResourcesAndCheck(pageResponse);
-    sleep(1);
   });
 
   group("go to kc login and submit form", () => {
