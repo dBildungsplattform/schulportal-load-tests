@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": "./loadtest/",
+    "target": "ESNext",
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true

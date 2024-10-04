@@ -7,9 +7,11 @@ Load and performance tests for the schulportal
 You will need a working installation of k6. ([How to install k6](https://grafana.com/docs/k6/latest/set-up/install-k6/)).
 
 To run all usecases against `https://example.env/`:
+
 ```sh
 ./run.sh "https://example.env/"
 ```
+
 Note the trailing slash!
 
 ### Configuration
