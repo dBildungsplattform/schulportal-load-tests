@@ -4,12 +4,13 @@ import { getBackendUrl, getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
 import login from "./1_login.ts";
 import { prettyLog } from "../util/debug.ts";
+import { getDefaultAdminMix } from "../util/users.ts";
 
 const frontendUrl = getFrontendUrl();
 const backendUrl = getBackendUrl();
 
-export default function main() {
-  login();
+export default function main(users = getDefaultAdminMix()) {
+  login(users);
 
   group("load start page", () => {
     const pageResponse = http.get(frontendUrl);

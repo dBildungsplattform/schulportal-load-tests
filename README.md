@@ -25,7 +25,7 @@ And you can selectively run usecases by providing a regex for the filename:
 
 ### Configuration
 
-You have to provide `loadtest/data/users.json` with usernames and passwords for the tests to work. An example is provided in `loadtest/data/`.
+You have to provide `loadtest/data/users.json` with usernames, passwords and role for the tests to work. An example is provided in `loadtest/data/`.
 
 
 ## Development

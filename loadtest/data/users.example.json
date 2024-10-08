@@ -1,6 +1,7 @@
 [
   {
     "username": "myUsername",
-    "password": "myPassword"
+    "password": "myPassword",
+    "role": "role value; see loadtest/util/users.ts"
   }
 ]

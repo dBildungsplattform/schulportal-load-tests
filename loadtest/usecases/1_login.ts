@@ -1,30 +1,18 @@
 import { check, fail, group, sleep } from "k6";
-import { SharedArray } from "k6/data";
 import http from "k6/http";
 import { getDefaultOptions, getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
+import { getDefaultUserMix, UserMix } from "../util/users.ts";
 
 const SPSH_BASE = getFrontendUrl();
 // not needed yet
 // const KC_BASE = __ENV["KC_BASE"];
 
-type User = {
-  username: string;
-  password: string;
-};
-/**
- * Array of usernames and passwords from users.json
- */
-const users = new SharedArray("users", () => {
-  const f = JSON.parse(open("../data/users.json")) as Array<User>;
-  return f;
-});
-
 export const options = {
   ...getDefaultOptions(),
 };
 
-export default function main() {
+export default function main(users = getDefaultUserMix()) {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
    */
@@ -53,7 +41,7 @@ export default function main() {
     const actionUrl = doc.find("#kc-form-login").attr("action");
     if (!actionUrl) fail("action for #kc-form-login was not found");
 
-    const user = users[__VU % users.length];
+    const user = users.getLogin();
     const loginData = {
       ...user,
       credentialId: "",
