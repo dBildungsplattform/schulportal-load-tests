@@ -1,4 +1,4 @@
-import { check } from "k6";
+import { check, fail } from "k6";
 import http, { RefinedParams, RequestBody, ResponseType } from "k6/http";
 import {
   defaultHttpCheck,
@@ -6,6 +6,7 @@ import {
   getStatusChecker,
 } from "./checks.ts";
 import { getBackendUrl } from "./config.ts";
+import { prettyLog } from "./debug";
 
 export type Paginated<T> = {
   total: number;
@@ -36,6 +37,32 @@ export function getLoginInfo() {
   const response = makeHttpRequest("get", "auth/logininfo");
   check(response, defaultHttpCheck);
   return response.json();
+}
+
+export function getServiceProviders() {
+  const providerResponse = makeHttpRequest("get", "provider");
+  check(providerResponse, defaultHttpCheck);
+  const providers = providerResponse.json() as unknown as Array<{
+    id: string;
+  }>;
+  return providers;
+}
+
+export function getServiceProviderLogos(providers: Array<{ id: string }>) {
+  try {
+    for (const provider of providers) {
+      const logoResponse = http.get(
+        http.url`${backendUrl}provider/${provider.id}/logo`,
+      );
+      check(logoResponse, {
+        "got provider logos": (r) => r.status === 200,
+        ...defaultTimingCheck,
+      });
+    }
+  } catch (error) {
+    prettyLog(error);
+    fail("did not get provider logo");
+  }
 }
 
 export function getOrganisationen(
