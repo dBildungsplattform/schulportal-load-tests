@@ -1,6 +1,7 @@
 import { check } from "k6";
-import http, { RefinedResponse, ResponseType } from "k6/http";
 import { Selection } from "k6/html";
+import http, { RefinedResponse, ResponseType } from "k6/http";
+import { defaultTimingCheck } from "./checks.ts";
 
 function getBaseUrl(url: string) {
   const segments = url.split("/").filter((s) => s.length > 0);
@@ -57,6 +58,7 @@ export function loadLinkedResourcesAndCheck(
     check(linkedResponse, {
       "fetching linked resources succeeded": () =>
         200 <= linkedResponse.status && linkedResponse.status < 300,
+      ...defaultTimingCheck,
     }),
   );
 }

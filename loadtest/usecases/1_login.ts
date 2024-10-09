@@ -1,8 +1,9 @@
 import { check, fail, group, sleep } from "k6";
 import http from "k6/http";
+import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions, getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
-import { getDefaultUserMix, UserMix } from "../util/users.ts";
+import { getDefaultUserMix } from "../util/users.ts";
 
 const SPSH_BASE = getFrontendUrl();
 // not needed yet
@@ -20,9 +21,7 @@ export default function main(users = getDefaultUserMix()) {
 
   group("load spsh", () => {
     const pageResponse = http.get(SPSH_BASE);
-    check(pageResponse, {
-      "page loaded": () => pageResponse.status === 200,
-    });
+    check(pageResponse, defaultHttpCheck);
     loadLinkedResourcesAndCheck(pageResponse);
   });
 
@@ -31,9 +30,7 @@ export default function main(users = getDefaultUserMix()) {
     const loginPageResponse = http.get(
       SPSH_BASE + "api/auth/login?redirectUrl=/",
     );
-    check(loginPageResponse, {
-      "page loaded": () => loginPageResponse.status === 200,
-    });
+    check(loginPageResponse, defaultHttpCheck);
     loadLinkedResourcesAndCheck(loginPageResponse);
 
     // submit form
@@ -50,6 +47,7 @@ export default function main(users = getDefaultUserMix()) {
     check(loginResponse, {
       "submitting login form to kc succeeded": () =>
         loginResponse.status === 302,
+      ...defaultTimingCheck,
     });
 
     // retrieve the loginUrl from the response
@@ -65,6 +63,7 @@ export default function main(users = getDefaultUserMix()) {
     check(response, {
       "login succeeded": () =>
         response.status === 200 || response.status === 302,
+      ...defaultTimingCheck,
     });
     loadLinkedResourcesAndCheck(response);
   });
