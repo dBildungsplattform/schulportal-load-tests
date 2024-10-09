@@ -6,7 +6,7 @@ import {
   getStatusChecker,
 } from "./checks.ts";
 import { getBackendUrl } from "./config.ts";
-import { prettyLog } from "./debug";
+import { prettyLog } from "./debug.ts";
 
 export type Paginated<T> = {
   total: number;

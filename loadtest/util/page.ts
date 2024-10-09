@@ -1,5 +1,5 @@
 import { check, fail } from "k6";
-import http from "k6/http/index";
+import http from "k6/http";
 import { getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
 import { defaultTimingCheck } from "./checks.ts";
