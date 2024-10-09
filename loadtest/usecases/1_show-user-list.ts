@@ -1,68 +1,134 @@
-import { check, fail, group, sleep } from "k6";
-import http from "k6/http";
-import { getBackendUrl } from "../util/config.ts";
-import goToStart from "./1_show-start.ts";
-import { prettyLog } from "../util/debug.ts";
+import { group, sleep } from "k6";
+import {
+  getLoginInfo,
+  getOrganisationen,
+  getPersonen,
+  getPersonenUebersicht,
+  getRollen,
+  Paginated,
+  PersonDatensatz,
+  PersonenUebersicht,
+} from "../util/api.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
-
-const backendUrl = getBackendUrl();
+import goToStart from "./1_show-start.ts";
 
 export default function main(users = getDefaultAdminMix()) {
   goToStart(users);
 
+  // these are used to test the filters
+  let orgId = "";
+  let rolleId = "";
+  let personenuebersicht: PersonenUebersicht | undefined = undefined;
+
   group("load user page", () => {
-    const logininfoResponse = http.get(http.url`${backendUrl}auth/logininfo`);
-    check(logininfoResponse, {
-      "got logininfo": (r) => r.status === 200,
-    });
-    const organisationenResponse = http.get(
-      http.url`${backendUrl}organisationen?limit=25&systemrechte=PERSONEN_VERWALTEN&excludeTyp=KLASSE`,
-    );
-    check(organisationenResponse, {
-      "got organisationen": (r) => r.status === 200,
-    });
+    getLoginInfo();
+    const organisationen = getOrganisationen([
+      "limit=25",
+      "systemrechte=PERSONEN_VERWALTEN",
+      "excludeTyp=KLASSE",
+    ]);
+    orgId = pickRandomItem(organisationen).id;
+
     // TODO: see if this behaviour should be emulated
     for (let i = 0; i < 2; i++) {
-      const personIds: Set<string> = new Set();
-      let response = http.get(http.url`${backendUrl}personen-frontend`);
-      check(response, {
-        "got personen": (r) => r.status === 200,
-      });
-      const data = response.json("items") as unknown as Array<{
-        person: { id: string };
-      }>;
-      for (const entry of data) {
-        try {
-          const id = entry.person.id;
-          personIds.add(id);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-      const body = JSON.stringify({
-        personIds: Array.from(personIds),
-      });
-      response = http.post(
-        http.url`${backendUrl}dbiam/personenuebersicht`,
-        body,
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      check(response, {
-        "got uebersicht": (r) => r.status === 201,
-      });
+      const personIds = getPersonenIds();
+      const personenuebersichten = getPersonenUebersicht(personIds);
+      personenuebersicht = pickRandomItem(personenuebersichten);
     }
-    {
-      const response = http.get(
-        http.url`${backendUrl}person-administration/rollen?rolleName=`,
-      );
-      check(response, {
-        "got rollen": (r) => r.status === 200,
-      });
-      prettyLog(response);
+
+    const rollen = getRollen(["rolleName="]);
+    rolleId = pickRandomItem(rollen).id;
+  });
+
+  group("hit pages", () => {
+    for (let offset = 0; offset < 5; offset++) {
+      getPersonen([`offset=${offset}`, "limit=30", "suchFilter="]);
     }
   });
 
+  group("toggle filters", () => {
+    group("schule", () => {
+      getOrganisationen([
+        "limit=25",
+        "searchString=",
+        "typ=KLASSE",
+        `administriertVon=${orgId}`,
+      ]);
+      const personen = getPersonen([
+        "offset=0",
+        "limit=30",
+        `organisationIDs=${orgId}`,
+        "suchFilter=",
+      ]);
+      const personIds = getPersonenIds(personen);
+      getPersonenUebersicht(personIds);
+
+      emulateFilterReset();
+    });
+
+    group("rolle", () => {
+      getOrganisationen([
+        "limit=25",
+        "searchString=",
+        "typ=KLASSE",
+        `administriertVon=${orgId}`,
+      ]);
+      const personen = getPersonen([
+        "offset=0",
+        "limit=30",
+        `rolleIDs=${rolleId}`,
+        "suchFilter=",
+      ]);
+      const personIds = getPersonenIds(personen);
+      getPersonenUebersicht(personIds);
+
+      emulateFilterReset();
+    });
+
+    group("filter list", () => {
+      const filters = [
+        personenuebersicht?.benutzername,
+        personenuebersicht?.vorname,
+        personenuebersicht?.nachname,
+      ];
+      for (const filter of filters) {
+        const personen = getPersonen([
+          "offset=0",
+          "limit=30",
+          `suchFilter=${filter}`,
+        ]);
+        const personIds = getPersonenIds(personen);
+        getPersonenUebersicht(personIds);
+
+        emulateFilterReset();
+      }
+    });
+  });
+
   sleep(1);
+}
+
+function getPersonenIds(personen?: Paginated<PersonDatensatz>): Set<string> {
+  if (!personen) personen = getPersonen();
+  return new Set(personen.items.map(({ person }) => person.id));
+}
+
+function emulateFilterReset() {
+  const personIds = getPersonenIds();
+  getPersonenUebersicht(personIds);
+  getOrganisationen([
+    "limit=25",
+    "systemrechte=PERSONEN_VERWALTEN",
+    "excludeTyp=KLASSE",
+  ]);
+  getOrganisationen([
+    "limit=25",
+    "searchString=",
+    "systemrechte=PERSONEN_VERWALTEN",
+    "excludeTyp=KLASSE",
+  ]);
+}
+
+function pickRandomItem<T>(array: Array<T>): T {
+  return array[Math.floor(Math.random() * array.length)];
 }
