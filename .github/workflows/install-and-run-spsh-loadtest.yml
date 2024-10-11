@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: spsh-k6-loadtest-rollout-run
+  group: schulportal-load-tests-rollout-run
   cancel-in-progress: true
 
 jobs:
@@ -29,8 +29,8 @@ jobs:
         with:
           repository: 'dBildungsplattform/schulportal-load-tests'
           # change this ref to a branch to test changes
-          ref: "${{ inputs.release_tag }}"
-          # ref: "<branch_name>"
+          # ref: "${{ inputs.release_tag }}"
+          ref: "<branch_name>"
 
       - name: Install kubectl and Helm
         uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
