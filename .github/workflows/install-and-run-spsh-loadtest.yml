@@ -2,31 +2,15 @@
 name: Install and Run SPSH loadtest Action 
 
 on:
+  workflow_dispatch:
+    
   workflow_call:
     inputs:
-      instance_name:
-        type: string
-        required: true
-      instance_stage:
-        type: string
-        required: true
-      frontend_hostname:
-        type: string
-        required: true
       release_tag:
         type: string
         required: true
-      dbseeding:
-        required: false
-        description: "Enable Seeding (true, false, chart_value)"
-        default: chart_value
-        type: string
     secrets:
-      TOKEN:
-        required: true
       KUBECONFIG:
-        required: true
-      RC_WEBHOOK: 
         required: true
 
 permissions:
