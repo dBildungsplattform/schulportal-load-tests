@@ -1,0 +1,71 @@
+---
+name: Install and Run SPSH loadtest Action 
+
+on:
+  workflow_call:
+    inputs:
+      instance_name:
+        type: string
+        required: true
+      instance_stage:
+        type: string
+        required: true
+      frontend_hostname:
+        type: string
+        required: true
+      release_tag:
+        type: string
+        required: true
+      dbseeding:
+        required: false
+        description: "Enable Seeding (true, false, chart_value)"
+        default: chart_value
+        type: string
+    secrets:
+      TOKEN:
+        required: true
+      KUBECONFIG:
+        required: true
+      RC_WEBHOOK: 
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spsh-k6-loadtest-rollout-run
+  cancel-in-progress: true
+
+jobs:
+  rollout:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
+        with:
+          repository: 'dBildungsplattform/schulportal-load-tests'
+          # change this ref to a branch to test changes
+          ref: "${{ inputs.release_tag }}"
+          # ref: "<branch_name>"
+
+      - name: Install kubectl and Helm
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
+
+      - name: Set kubeconfig
+        run: |
+          mkdir /home/runner/.kube/
+          echo "${{ secrets.KUBECONFIG }}" > /home/runner/.kube/config
+          chmod 600 /home/runner/.kube/config
+
+      - name: Helm add repo dbilungsplattform
+        run: |
+          helm repo add dbildungsplattform https://dbildungsplattform.github.io/helm-charts-registry/
+
+      - name: Rollout schulportal-load-tests Helm Chart 
+        run: |
+            helm upgrade --install \
+            schulportal-load-tests \
+            ./charts/schulportal-load-tests \
+            --namespace loadtest \
+            --kubeconfig /home/runner/.kube/config \
+            --wait
