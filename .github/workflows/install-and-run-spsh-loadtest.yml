@@ -61,11 +61,11 @@ jobs:
         run: |
           helm repo add dbildungsplattform https://dbildungsplattform.github.io/helm-charts-registry/
 
-      - name: Rollout spsh-k6-loadtest Helm Chart 
+      - name: Rollout schulportal-load-tests Helm Chart 
         run: |
             helm upgrade --install \
-            spsh-k6-loadtest \
+            schulportal-load-tests \
             ./charts/schulportal-load-tests \
-            --namespace spsh \
+            --namespace loadtest \
             --kubeconfig /home/runner/.kube/config \
             --wait

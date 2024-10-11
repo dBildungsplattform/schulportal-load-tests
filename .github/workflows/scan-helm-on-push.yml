@@ -4,7 +4,7 @@ on:
   push:
 
 concurrency:
-  group: spsh-loadtest-scan-helm-${{ github.event.ref }}
+  group: schulportal-load-tests-scan-helm-${{ github.event.ref }}
   cancel-in-progress: true
 
 jobs:

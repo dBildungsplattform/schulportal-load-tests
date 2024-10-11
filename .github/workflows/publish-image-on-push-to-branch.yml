@@ -6,7 +6,7 @@ on:
       - 'main'
 
 concurrency:
-  group: spsh-loadtest-${{ github.ref }}
+  group: schulportal-load-tests-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       contents: read
     uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@5.0.0
     with:
-      image_name: "spsh-k6-loadtest"
+      image_name: "schulportal-load-tests"
       run_trivy_scan: true
       image_tag_generation: "ticket_from_branch"
       add_latest_tag: false
