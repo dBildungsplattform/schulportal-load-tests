@@ -17,7 +17,11 @@ export type Paginated<T> = {
 
 const backendUrl = getBackendUrl();
 
-function makeHttpRequest(
+export function makeQueryString(pairs: Array<string>): string {
+  return "?".concat(pairs.join("&"));
+}
+
+export function makeHttpRequest(
   verb: string,
   resource: string,
   options?: Partial<{
@@ -26,11 +30,14 @@ function makeHttpRequest(
     params: RefinedParams<ResponseType | undefined>;
   }>,
 ) {
-  const queryString = options?.query
-    ? "?".concat(options?.query?.join("&"))
-    : "";
-  const url = http.url`${backendUrl}${resource}${queryString}`;
-  return http.request(verb.toUpperCase(), url, options?.body, options?.params);
+  const queryString = options?.query ? makeQueryString(options.query) : "";
+  const url = `${backendUrl}${resource}${queryString}`;
+  return http.request(verb.toUpperCase(), url, options?.body, {
+    ...options?.params,
+    tags: {
+      resource,
+    },
+  });
 }
 
 export function getLoginInfo() {
@@ -44,6 +51,8 @@ export function getServiceProviders() {
   check(providerResponse, defaultHttpCheck);
   const providers = providerResponse.json() as unknown as Array<{
     id: string;
+    name: string;
+    url: string;
   }>;
   return providers;
 }
@@ -53,6 +62,7 @@ export function getServiceProviderLogos(providers: Array<{ id: string }>) {
     for (const provider of providers) {
       const logoResponse = http.get(
         http.url`${backendUrl}provider/${provider.id}/logo`,
+        { tags: { resource: "provider/${id}/logo" } },
       );
       check(logoResponse, {
         "got provider logos": (r) => r.status === 200,
@@ -76,9 +86,37 @@ export function getOrganisationen(
   }>;
 }
 
+export function getAdministeredOrganisationenById(
+  id: string,
+  query?: Array<string>,
+): Array<{
+  id: string;
+  typ: string;
+  name: string;
+}> {
+  const queryString = query ? makeQueryString(query) : "";
+  const response = http.get(
+    http.url`${backendUrl}organisationen/${id}/administriert${queryString}`,
+    { tags: { resource: "organisationen/${id}/administriert" } },
+  );
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as Array<{
+    id: string;
+    typ: string;
+    name: string;
+  }>;
+}
+
 export type PersonDatensatz = {
   person: { id: string };
 };
+
+export function getPersonenIds(
+  personen?: Paginated<PersonDatensatz>,
+): Set<string> {
+  if (!personen) personen = getPersonen();
+  return new Set(personen.items.map(({ person }) => person.id));
+}
 
 export function getPersonen(query?: Array<string>): Paginated<PersonDatensatz> {
   const response = makeHttpRequest("get", "personen-frontend", { query });
@@ -107,7 +145,7 @@ export function getPersonenUebersicht(
     params,
   });
   check(response, {
-    ...getStatusChecker(201),
+    "got 201": getStatusChecker(201),
     ...defaultTimingCheck,
   });
   return response.json("items") as unknown as Array<PersonenUebersicht>;
@@ -121,4 +159,44 @@ export function getRollen(query?: Array<string>): Array<{ id: string }> {
   return response.json("moeglicheRollen") as unknown as Array<{
     id: string;
   }>;
+}
+
+export function getPersonenkontextWorkflowStep(query?: Array<string>) {
+  const response = makeHttpRequest("get", "personenkontext-workflow/step", {
+    query,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as {
+    canCommit: boolean;
+    organisations: Array<{ id: string; name: string }>;
+    rollen: Array<{ id: string; name: string }>;
+  };
+}
+
+export function postPersonenkontextWorkflow(body: {
+  familienname: string;
+  vorname: string;
+  personalnummer: string;
+  befristung: string;
+  createPersonenkontexte: {
+    organisationId: string;
+    rolleId: string;
+  }[];
+}) {
+  const params = {
+    headers: { "Content-Type": "application/json" },
+  };
+  const response = makeHttpRequest("post", "personenkontext-workflow", {
+    body: JSON.stringify(body),
+    params,
+  });
+  check(response, {
+    "got 201": getStatusChecker(201),
+    ...defaultTimingCheck,
+  });
+  return response.json() as unknown as {
+    canCommit: boolean;
+    organisations: Array<{ id: string; name: string }>;
+    rollen: Array<{ id: string; name: string }>;
+  };
 }
