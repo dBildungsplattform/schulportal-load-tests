@@ -1,5 +1,5 @@
 # Create image for running k6 with output for Prometheus
-FROM grafana/k6:0.54.1
+FROM grafana/k6:0.54.0
 USER root
 
 COPY wrapper-script.sh wrapper-script.sh
