@@ -20,6 +20,8 @@ spec:
           containers:
           - name: {{ $job_name }}
             image: {{ $job_options.image }}
+            securityContext:
+              allowPrivilegeEscalation: false
             imagePullPolicy: Always
             env:
               - name: OPTIONS_FILE_PATH
