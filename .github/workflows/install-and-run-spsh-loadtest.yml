@@ -30,7 +30,7 @@ jobs:
           repository: 'dBildungsplattform/schulportal-load-tests'
           # change this ref to a branch to test changes
           # ref: "${{ inputs.release_tag }}"
-          ref: "<branch_name>"
+          ref: "DBP-1012-setup-loadtest-env"
 
       - name: Install kubectl and Helm
         uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
