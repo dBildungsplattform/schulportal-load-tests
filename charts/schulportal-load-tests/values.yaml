@@ -4,6 +4,6 @@ cronjobs:
     schedule: 0 8 * * *
     port: 5656
     serviceName: dev-scenario
-    image: ghcr.io/dbildungsplattform/spsh-k6-loadtest:latest
+    image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
     environment: spsh.loadtest.dbildungscloud.dev
   
