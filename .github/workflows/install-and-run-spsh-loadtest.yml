@@ -50,6 +50,6 @@ jobs:
             helm upgrade --install \
             schulportal-load-tests \
             ./charts/schulportal-load-tests \
-            --namespace loadtest \
+            --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
             --wait
