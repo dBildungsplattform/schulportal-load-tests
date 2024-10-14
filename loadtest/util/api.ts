@@ -1,19 +1,23 @@
 import { check, fail } from "k6";
 import http, { RefinedParams, RequestBody, ResponseType } from "k6/http";
 import {
+  DbiamCreatePersonWithPersonenkontexteBodyParams,
+  DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
+  DBiamPersonResponse,
+  FindRollenResponse,
+  OrganisationResponse,
+  PersonenkontextWorkflowResponse,
+  PersonFrontendControllerFindPersons200Response,
+  ServiceProviderResponse,
+  UserinfoResponse,
+} from "../api-client/generated/index.ts";
+import {
   defaultHttpCheck,
   defaultTimingCheck,
   getStatusChecker,
 } from "./checks.ts";
 import { getBackendUrl } from "./config.ts";
 import { prettyLog } from "./debug.ts";
-
-export type Paginated<T> = {
-  total: number;
-  offset: number;
-  limit: number;
-  items: Array<T>;
-};
 
 const backendUrl = getBackendUrl();
 
@@ -43,7 +47,7 @@ export function makeHttpRequest(
 export function getLoginInfo() {
   const response = makeHttpRequest("get", "auth/logininfo");
   check(response, defaultHttpCheck);
-  return response.json();
+  return response.json() as unknown as UserinfoResponse;
 }
 
 export function getServiceProviders() {
@@ -54,7 +58,7 @@ export function getServiceProviders() {
     name: string;
     url: string;
   }>;
-  return providers;
+  return providers as unknown as Array<ServiceProviderResponse>;
 }
 
 export function getServiceProviderLogos(providers: Array<{ id: string }>) {
@@ -75,65 +79,43 @@ export function getServiceProviderLogos(providers: Array<{ id: string }>) {
   }
 }
 
-export function getOrganisationen(
-  query?: Array<string>,
-): Array<{ id: string; typ: string }> {
+export function getOrganisationen(query?: Array<string>) {
   const response = makeHttpRequest("get", "organisationen", { query });
   check(response, defaultHttpCheck);
-  return response.json() as unknown as Array<{
-    id: string;
-    typ: string;
-  }>;
+  return response.json() as unknown as Array<OrganisationResponse>;
 }
 
 export function getAdministeredOrganisationenById(
   id: string,
   query?: Array<string>,
-): Array<{
-  id: string;
-  typ: string;
-  name: string;
-}> {
+) {
   const queryString = query ? makeQueryString(query) : "";
   const response = http.get(
     http.url`${backendUrl}organisationen/${id}/administriert${queryString}`,
     { tags: { resource: "organisationen/${id}/administriert" } },
   );
   check(response, defaultHttpCheck);
-  return response.json() as unknown as Array<{
-    id: string;
-    typ: string;
-    name: string;
-  }>;
+  return response.json() as unknown as Array<OrganisationResponse>;
 }
 
-export type PersonDatensatz = {
-  person: { id: string };
-};
-
 export function getPersonenIds(
-  personen?: Paginated<PersonDatensatz>,
+  personen?: PersonFrontendControllerFindPersons200Response,
 ): Set<string> {
   if (!personen) personen = getPersonen();
   return new Set(personen.items.map(({ person }) => person.id));
 }
 
-export function getPersonen(query?: Array<string>): Paginated<PersonDatensatz> {
+export function getPersonen(
+  query?: Array<string>,
+) {
   const response = makeHttpRequest("get", "personen-frontend", { query });
   check(response, defaultHttpCheck);
-  return response.json() as unknown as Paginated<PersonDatensatz>;
+  return response.json() as unknown as PersonFrontendControllerFindPersons200Response;
 }
-
-export type PersonenUebersicht = {
-  id: string;
-  vorname: string;
-  nachname: string;
-  benutzername: string;
-};
 
 export function getPersonenUebersicht(
   personIds: Set<string>,
-): Array<PersonenUebersicht> {
+) {
   const body = JSON.stringify({
     personIds: Array.from(personIds),
   });
@@ -148,17 +130,21 @@ export function getPersonenUebersicht(
     "got 201": getStatusChecker(201),
     ...defaultTimingCheck,
   });
-  return response.json("items") as unknown as Array<PersonenUebersicht>;
+  return response.json(
+    "items",
+  ) as unknown as DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response["items"];
 }
 
-export function getRollen(query?: Array<string>): Array<{ id: string }> {
+export function getRollen(
+  query?: Array<string>,
+) {
   const response = makeHttpRequest("get", "person-administration/rollen", {
     query,
   });
   check(response, defaultHttpCheck);
-  return response.json("moeglicheRollen") as unknown as Array<{
-    id: string;
-  }>;
+  return response.json(
+    "moeglicheRollen",
+  ) as unknown as FindRollenResponse["moeglicheRollen"];
 }
 
 export function getPersonenkontextWorkflowStep(query?: Array<string>) {
@@ -166,23 +152,12 @@ export function getPersonenkontextWorkflowStep(query?: Array<string>) {
     query,
   });
   check(response, defaultHttpCheck);
-  return response.json() as unknown as {
-    canCommit: boolean;
-    organisations: Array<{ id: string; name: string }>;
-    rollen: Array<{ id: string; name: string }>;
-  };
+  return response.json() as unknown as PersonenkontextWorkflowResponse;
 }
 
-export function postPersonenkontextWorkflow(body: {
-  familienname: string;
-  vorname: string;
-  personalnummer: string;
-  befristung: string;
-  createPersonenkontexte: {
-    organisationId: string;
-    rolleId: string;
-  }[];
-}) {
+export function postPersonenkontextWorkflow(
+  body: DbiamCreatePersonWithPersonenkontexteBodyParams,
+) {
   const params = {
     headers: { "Content-Type": "application/json" },
   };
@@ -194,9 +169,5 @@ export function postPersonenkontextWorkflow(body: {
     "got 201": getStatusChecker(201),
     ...defaultTimingCheck,
   });
-  return response.json() as unknown as {
-    canCommit: boolean;
-    organisations: Array<{ id: string; name: string }>;
-    rollen: Array<{ id: string; name: string }>;
-  };
+  return response.json() as unknown as DBiamPersonResponse;
 }
