@@ -34,7 +34,6 @@ export default function main(users = getDefaultAdminMix()) {
     ]);
     orgId = pickRandomItem(organisationen).id;
 
-    // TODO: see if this behaviour should be emulated
     for (let i = 0; i < 2; i++) {
       const personIds = getPersonenIds();
       const personenuebersichten = getPersonenUebersicht(personIds);

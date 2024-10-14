@@ -40,7 +40,6 @@ export function navigateToUserList(users = getDefaultAdminMix()) {
     "excludeTyp=KLASSE",
   ]);
 
-  // TODO: see if this behaviour should be emulated
   for (let i = 0; i < 2; i++) {
     const personIds = getPersonenIds();
     getPersonenUebersicht(personIds);
