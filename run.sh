@@ -16,6 +16,11 @@ if [[ "$SPSH_BASE" =~ "localhost" ]]; then
     SKIP_SSL="--insecure-skip-tls-verify"
 fi
 
+# create output/, if not present
+if [[ ! -d output/ ]]; then
+    mkdir output/
+fi
+
 for uc in loadtest/usecases/*; do
     if [[ "$uc" =~ "$PATTERN" ]]; then
         filename=${uc##*/}
