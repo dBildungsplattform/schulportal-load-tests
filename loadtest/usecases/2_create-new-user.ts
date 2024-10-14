@@ -53,7 +53,7 @@ export default function main(users = getDefaultAdminMix()) {
     const body = {
       ...getRandomName(),
       personalnummer: "",
-      befristung: "2055-07-31T22:00:00.000Z",
+      befristung: new Date("2055-07-31T22:00:00.000Z"),
       createPersonenkontexte: [
         {
           organisationId: organisation.id,
@@ -77,7 +77,7 @@ export default function main(users = getDefaultAdminMix()) {
     } else {
       body.personalnummer = "1237562";
     }
-    prettyLog(postPersonenkontextWorkflow(body));
+    postPersonenkontextWorkflow(body);
   });
 }
 
