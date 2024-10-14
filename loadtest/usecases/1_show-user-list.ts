@@ -3,14 +3,19 @@ import {
   getLoginInfo,
   getOrganisationen,
   getPersonen,
+  getPersonenIds,
   getPersonenUebersicht,
   getRollen,
-  Paginated,
-  PersonDatensatz,
   PersonenUebersicht,
 } from "../util/api.ts";
+import { getDefaultOptions } from "../util/config.ts";
+import { pickRandomItem } from "../util/data.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
 import goToStart from "./1_show-start.ts";
+
+export const options = {
+  ...getDefaultOptions(),
+};
 
 export default function main(users = getDefaultAdminMix()) {
   goToStart(users);
@@ -29,7 +34,6 @@ export default function main(users = getDefaultAdminMix()) {
     ]);
     orgId = pickRandomItem(organisationen).id;
 
-    // TODO: see if this behaviour should be emulated
     for (let i = 0; i < 2; i++) {
       const personIds = getPersonenIds();
       const personenuebersichten = getPersonenUebersicht(personIds);
@@ -108,11 +112,6 @@ export default function main(users = getDefaultAdminMix()) {
   sleep(1);
 }
 
-function getPersonenIds(personen?: Paginated<PersonDatensatz>): Set<string> {
-  if (!personen) personen = getPersonen();
-  return new Set(personen.items.map(({ person }) => person.id));
-}
-
 function emulateFilterReset() {
   const personIds = getPersonenIds();
   getPersonenUebersicht(personIds);
@@ -127,8 +126,4 @@ function emulateFilterReset() {
     "systemrechte=PERSONEN_VERWALTEN",
     "excludeTyp=KLASSE",
   ]);
-}
-
-function pickRandomItem<T>(array: Array<T>): T {
-  return array[Math.floor(Math.random() * array.length)];
 }

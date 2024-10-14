@@ -7,13 +7,15 @@
     "check": "npm run format && npm run typecheck && npm run lint",
     "format": "prettier --write .",
     "lint": "eslint --fix",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "generate-client": "openapi-generator-cli generate -g typescript -i loadtest/api-client/openapispec.json -o loadtest/api-client/generated --openapi-normalizer REFACTOR_ALLOF_WITH_PROPERTIES_ONLY=true"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@openapitools/openapi-generator-cli": "^2.14.0",
     "@types/k6": "^0.54.1",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",

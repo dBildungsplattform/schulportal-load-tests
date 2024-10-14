@@ -27,7 +27,7 @@ export default function loadLinkedResources(
     responses = [];
     for (const doc of docList) {
       const links = getLinksForLinkedResources(doc);
-      const urls = links.map((link: string) => http.url`${baseUrl}${link}`);
+      const urls = links.map((link: string) => `${baseUrl}${link}`);
       responses = responses.concat(urls.map((url) => http.get(url)));
     }
     docList = responses.map((response) => response.html());
