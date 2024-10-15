@@ -3,7 +3,6 @@ name: Trigger Loadtest
 
 on:
   workflow_dispatch:
-on:
   push:
     branch: DBP-1012-setup-loadtest-env
 
