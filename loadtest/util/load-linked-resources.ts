@@ -55,10 +55,16 @@ export function loadLinkedResourcesAndCheck(
 ) {
   const linkedResponses = loadLinkedResources(response);
   linkedResponses.forEach((linkedResponse) =>
-    check(linkedResponse, {
-      "fetching linked resources succeeded": () =>
-        200 <= linkedResponse.status && linkedResponse.status < 300,
-      ...defaultTimingCheck,
-    }),
+    check(
+      linkedResponse,
+      {
+        "fetching linked resources succeeded": () =>
+          200 <= linkedResponse.status && linkedResponse.status < 300,
+        ...defaultTimingCheck,
+      },
+      {
+        resource: linkedResponse.url,
+      },
+    ),
   );
 }
