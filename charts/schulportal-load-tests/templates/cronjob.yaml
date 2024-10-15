@@ -53,7 +53,6 @@ spec:
           - name: secret-volume
             secret:
               secretName: spsh-loadtest-secret
-          volumes:
           - name: secret-volume-json
             secret:
               secretName: spsh-loadtest-secret-json
