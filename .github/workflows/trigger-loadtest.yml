@@ -12,7 +12,7 @@ jobs:
       packages: write
       security-events: write
       contents: read
-    uses: ./.github/workflows/install-and-run-spsh-loadtestitem.yml
+    uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
     with:
       branch: DBP-1012-setup-loadtest-env #
     secrets:
