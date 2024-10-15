@@ -48,5 +48,5 @@ jobs:
             ./charts/schulportal-load-tests \
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
-            --set branch="${{ inputs.branch }}"
+            --set branch="${{ inputs.branch }} "\
             --wait
