@@ -5,5 +5,13 @@ cronjobs:
     port: 5656
     serviceName: dev-scenario
     image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
-    environment: spsh.loadtest.dbildungscloud.dev
+    # what should be the environment be?
+    environment: main.dev.spsh.dbildungsplattform.de
+  # staging-scenario:
+  #   scriptPath: test.js
+  #   schedule: 0 8 * * *
+  #   port: 5656
+  #   serviceName: staging-scenario
+  #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
+  #   environment: spsh.staging.dbildungsplattform.de
   

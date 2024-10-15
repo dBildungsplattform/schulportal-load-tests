@@ -1,14 +1,13 @@
 ---
-name: Install and Run SPSH loadtest Action 
+name: Install and Run SPSH Loadtest Action 
 
-on:
-  workflow_dispatch:
-    
+on: 
   workflow_call:
     inputs:
-      release_tag:
+      branch:
         type: string
-        required: true
+        required: false
+        default: main
     secrets:
       KUBECONFIG:
         required: true
@@ -29,7 +28,7 @@ jobs:
         with:
           repository: 'dBildungsplattform/schulportal-load-tests'
           # change this ref to a branch to test changes
-          # ref: "${{ inputs.release_tag }}"
+          # ref: "${{ inputs.branch }}"
           ref: "DBP-1012-setup-loadtest-env"
 
       - name: Install kubectl and Helm
@@ -40,10 +39,6 @@ jobs:
           mkdir /home/runner/.kube/
           echo "${{ secrets.KUBECONFIG }}" > /home/runner/.kube/config
           chmod 600 /home/runner/.kube/config
-
-      - name: Helm add repo dbilungsplattform
-        run: |
-          helm repo add dbildungsplattform https://dbildungsplattform.github.io/helm-charts-registry/
 
       - name: Rollout schulportal-load-tests Helm Chart 
         run: |

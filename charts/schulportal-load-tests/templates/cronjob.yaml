@@ -6,6 +6,7 @@ metadata:
   namespace: spsh
 spec:
   schedule: {{ $job_options.schedule }}
+  startingDeadlineSeconds: 300
   suspend: true
   jobTemplate:
     spec:
@@ -17,6 +18,7 @@ spec:
             test: loadtest-{{ $job_options.serviceName }}
             pod: {{ $job_name }}
         spec:
+          automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
             image: {{ $job_options.image }}
@@ -34,17 +36,17 @@ spec:
                          '--tag','NAME={{ $job_options.serviceName }}',
                          #'--out', 'experimental-prometheus-rw',
                          '-e', 'ENVIRONMENT={{ $job_options.environment }}']
-            #volumeMounts:
-            #- name: secret-volume
-            #  mountPath: /secrets
-            #  readOnly: true
+            volumeMounts:
+              - name: secret-volume
+                mountPath: /secrets
+                readOnly: true
             ports:
             - containerPort: {{ $job_options.port }}
               name: loadtest-pod
-          #volumes:
-          #- name: secret-volume
-          #  secret:
-          #    secretName: spsh-loadtest-secret
+          volumes:
+          - name: secret-volume
+            secret:
+              secretName: spsh-loadtest-secret
           restartPolicy: Never
 ---
 {{- end}}
