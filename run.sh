@@ -11,9 +11,9 @@ fi
 
 # KC_BASE=$2 # not needed yet
 
-SKIP_SSL=""
+SKIP_SSL=1
 if [[ "$SPSH_BASE" =~ "localhost" ]]; then
-    SKIP_SSL="--insecure-skip-tls-verify"
+    SKIP_SSL=0
 fi
 
 # create output/, if not present
@@ -23,9 +23,20 @@ fi
 
 for uc in loadtest/usecases/*; do
     if [[ "$uc" =~ "$PATTERN" ]]; then
+        # setup csv file for output
         filename=${uc##*/}
         csv="output/${filename%.ts}.csv"
         touch "$csv"
-        k6 run --compatibility-mode=experimental_enhanced --out csv="$csv" "$SKIP_SSL" -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+
+        # compatibility-mode for typescript
+        options="--compatibility-mode=experimental_enhanced"
+        if [[ "$SKIP_SSL" -eq 0 ]]; then
+            options="${options} --insecure-skip-tls-verify"
+        fi
+        if [[ -w "$csv" ]]; then
+            options="${options} --out csv=${csv}"
+        fi
+
+        k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
     fi
 done
