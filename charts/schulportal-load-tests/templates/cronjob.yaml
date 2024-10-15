@@ -12,6 +12,7 @@ spec:
     spec:
       completions: {{ $job_options.jobsParallelism }}
       parallelism: {{ $job_options.jobsParallelism }}
+      backoffLimit: 0
       template:
         metadata:
           labels:
@@ -21,7 +22,7 @@ spec:
           automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
-            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{ $job_options.imageTag }}
+            image: ghcr.io/dbildungsplattform/schulportal-load-tests:{{ $job_options.imageTag }}
             imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
@@ -34,8 +35,8 @@ spec:
                 value: main.dev.spsh.dbildungsplattform.de
               - name: CONFIG
                 value: stress
-            command: ["sh", "-c", "git clone https://github.com/dBildungsplattform/schulportal-load-tests && cd schulportal-load-tests && git checkout DBP-1012-setup-loadtest-env && k6 '$@'"]
-            args: [ 'k6','run', '-u', '0',
+            command: ["sh", "-c", "git clone https://github.com/dBildungsplattform/schulportal-load-tests && cd schulportal-load-tests && git checkout DBP-1012-setup-loadtest-env && k6 \"$@\""]
+            args: [ 'run', '-u', '0',
                          './loadtest/usecases/{{ $job_options.scriptPath }}',
                          '--compatibility-mode=experimental_enhanced',
                   ]
