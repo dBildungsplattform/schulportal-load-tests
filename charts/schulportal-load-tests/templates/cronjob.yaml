@@ -35,11 +35,12 @@ spec:
                 value: main.dev.spsh.dbildungsplattform.de
               - name: CONFIG
                 value: stress
-            command: ["sh", "-c", "git clone https://github.com/dBildungsplattform/schulportal-load-tests && cd schulportal-load-tests && git checkout DBP-1012-setup-loadtest-env && k6 \"$@\""]
-            args: [ 'run', '-u', '0',
-                         './loadtest/usecases/{{ $job_options.scriptPath }}',
-                         '--compatibility-mode=experimental_enhanced',
-                  ]
+            command: ["sh", "-c", 
+                        "git clone https://github.com/dBildungsplattform/schulportal-load-tests &&
+                        cd schulportal-load-tests && 
+                        git checkout {{ .Values.branch }} && 
+                        sleep 3600 &&
+                        k6 run -u 0 ./loadtest/usecases/{{ $job_options.scriptPath }} --compatibility-mode=experimental_enhanced"]
             volumeMounts:
               - name: secret-volume
                 mountPath: /secrets

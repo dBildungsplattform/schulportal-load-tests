@@ -22,4 +22,5 @@ cronjobs:
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.dbildungsplattform.de
-  
+
+branch: main
