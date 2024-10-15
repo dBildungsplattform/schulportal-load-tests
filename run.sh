@@ -28,6 +28,7 @@ for uc in loadtest/usecases/*; do
         filename=${uc##*/}
         csv="output/${filename%.ts}.csv"
         touch "$csv"
-        k6 run --compatibility-mode=experimental_enhanced --out csv="$csv" "$SKIP_SSL" -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" "$uc"
+        echo k6 run --compatibility-mode=experimental_enhanced --out csv="$csv" "$SKIP_SSL" -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+        # k6 run --compatibility-mode=experimental_enhanced --out csv="$csv" "$SKIP_SSL" -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" "$uc"
     fi
 done
