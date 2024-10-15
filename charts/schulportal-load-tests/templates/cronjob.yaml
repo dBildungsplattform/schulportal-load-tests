@@ -10,7 +10,6 @@ spec:
   suspend: true
   jobTemplate:
     spec:
-      # is defined in here but not activaly used? 
       completions: {{ $job_options.jobsParallelism }}
       parallelism: {{ $job_options.jobsParallelism }}
       template:
@@ -22,7 +21,7 @@ spec:
           automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
-            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{ $job_options.iamgeTag }}
+            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{ $job_options.imageTag }}
             imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
