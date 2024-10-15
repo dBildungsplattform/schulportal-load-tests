@@ -38,7 +38,7 @@ spec:
             command: ["sh", "-c", 
                         "git clone https://github.com/dBildungsplattform/schulportal-load-tests &&
                         cd schulportal-load-tests && 
-                        git checkout {{ .Values.branch }} && 
+                        git checkout {{ $.Values.branch }} && 
                         sleep 3600 &&
                         k6 run -u 0 ./loadtest/usecases/{{ $job_options.scriptPath }} --compatibility-mode=experimental_enhanced"]
             volumeMounts:
