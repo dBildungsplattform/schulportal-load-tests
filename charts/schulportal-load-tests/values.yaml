@@ -1,12 +1,13 @@
 cronjobs:
   dev-scenario:
-    scriptPath: test.js
+    scriptPath: 1_goto-sp-oidc.ts # 01, 02, 03 Files
     schedule: 0 8 * * *
     port: 5656
     serviceName: dev-scenario
-    image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
-    # what should be the environment be?
+    # image-tag: latest
+    image-tag: SPSH-1012
     environment: main.dev.spsh.dbildungsplattform.de
+    # jobsParallelism: not used yet but available? test it
   # staging-scenario:
   #   scriptPath: test.js
   #   schedule: 0 8 * * *
@@ -14,4 +15,11 @@ cronjobs:
   #   serviceName: staging-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.staging.dbildungsplattform.de
+  # prod-scenario:
+  #   scriptPath: test.js
+  #   schedule: 0 8 * * *
+  #   port: 5656
+  #   serviceName: prod-scenario
+  #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
+  #   environment: spsh.dbildungsplattform.de
   

@@ -10,6 +10,7 @@ spec:
   suspend: true
   jobTemplate:
     spec:
+      # is defined in here but not activaly used? 
       completions: {{ $job_options.jobsParallelism }}
       parallelism: {{ $job_options.jobsParallelism }}
       template:
@@ -21,24 +22,30 @@ spec:
           automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
-            image: {{ $job_options.image }}
+            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{$job_options.iamge-tag}}
+            imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
-            imagePullPolicy: Always
             env:
               - name: OPTIONS_FILE_PATH
                 value: testoption.json
               - name: BRANCH
                 value: main
-            args:
-              ['k6','run', '-u', '0',
-                         './loadtest/tests/{{ $job_options.scriptPath }}',
-                         '--tag','NAME={{ $job_options.serviceName }}',
-                         #'--out', 'experimental-prometheus-rw',
-                         '-e', 'ENVIRONMENT={{ $job_options.environment }}']
+              - name: SPSH_BASE
+                value: main.dev.spsh.dbildungsplattform.de
+              - name: CONFIG
+                value: stress
+            command: ["sh", "-c", "git clone https://github.com/dBildungsplattform/schulportal-load-tests && cd schulportal-load-tests && git checkout DBP-1012-setup-loadtest-env && k6 '$@'"]
+            args: [ 'k6','run', '-u', '0',
+                         './loadtest/usecases/{{ $job_options.scriptPath }}',
+                         '--compatibility-mode=experimental_enhanced',
+                  ]
             volumeMounts:
               - name: secret-volume
                 mountPath: /secrets
+                readOnly: true
+              - name: secret-volume-json
+                mountPath: /data/json
                 readOnly: true
             ports:
             - containerPort: {{ $job_options.port }}
@@ -47,6 +54,10 @@ spec:
           - name: secret-volume
             secret:
               secretName: spsh-loadtest-secret
+          volumes:
+          - name: secret-volume-json
+            secret:
+              secretName: spsh-loadtest-secret-json
           restartPolicy: Never
 ---
 {{- end}}
