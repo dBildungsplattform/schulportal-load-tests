@@ -1,3 +1,5 @@
+branch: "main"
+
 cronjobs:
   dev-scenario:
     scriptPath: 1_goto-sp-oidc.ts # 01, 02, 03 Files
@@ -22,5 +24,3 @@ cronjobs:
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.dbildungsplattform.de
-
-branch: main
