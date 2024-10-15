@@ -22,7 +22,7 @@ spec:
           automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
-            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{$job_options.iamge-tag}}
+            image: ghcr.io/dbildungsplattform/schulportal-load-test:{{ $job_options.iamgeTag }}
             imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
