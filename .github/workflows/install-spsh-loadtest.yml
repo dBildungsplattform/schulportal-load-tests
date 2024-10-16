@@ -49,6 +49,6 @@ jobs:
             ./charts/schulportal-load-tests \
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
-            --set branch="${{ inputs.branch }}"\
+            --set branch="${{ inputs.branch }}" \
             ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', 'DBP-1012') || '--set imageTag="latest"' }} \
             --wait
