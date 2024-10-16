@@ -1,0 +1,20 @@
+---
+name: Trigger Loadtest
+
+on:
+  workflow_dispatch:
+  push:
+    branch: DBP-1012-setup-loadtest-env
+
+jobs:
+  run_loadtest:
+    permissions:
+      packages: write
+      security-events: write
+      contents: read
+    uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
+    with:
+      branch: DBP-1012-setup-loadtest-env #
+    secrets:
+      # token: ${{ secrets.GITHUB_TOKEN }} # not sure whether this is needed
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}

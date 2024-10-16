@@ -21,21 +21,21 @@ export function getDefaultOptions() {
     case CONFIG.SPIKE:
       return {
         stages: [
-          { duration: "30s", target: 100 },
+          { duration: "30s", target: 10 },
           { duration: "10s", target: 0 },
         ],
       };
     case CONFIG.STRESS:
       return {
         stages: [
-          { duration: "1m", target: 100 },
+          { duration: "1m", target: 10 },
           // { duration: "5m", target: 100 },
           { duration: "1m", target: 0 },
         ],
       };
     case CONFIG.BREAKPOINT:
       return {
-        stages: [{ duration: "5m", target: 100 }],
+        stages: [{ duration: "5m", target: 10 }],
         thresholds: {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
           http_req_duration: [{ threshold: "p(95)<2000", abortOnFail: true }],
