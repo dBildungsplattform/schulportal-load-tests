@@ -20,5 +20,5 @@ jobs:
       image_name: "schulportal-load-tests"
       run_trivy_scan: true
       image_tag_generation: "ticket_from_branch"
-      add_latest_tag: false
+      add_latest_tag: false 
       container_registry: "ghcr.io"

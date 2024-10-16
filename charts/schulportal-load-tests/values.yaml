@@ -1,26 +1,18 @@
 branch: "main"
+imageTag: latest #default latest, release oder main ? 
+port: 5656
+schedule: 0 8 * * *
 
 cronjobs:
   dev-scenario:
-    scriptPath: 1_goto-sp-oidc.ts # 01, 02, 03 Files
-    schedule: 0 8 * * *
-    port: 5656
     serviceName: dev-scenario
-    # image-tag: latest
-    imageTag: DBP-1012
     environment: main.dev.spsh.dbildungsplattform.de
     # jobsParallelism: not used yet but available? test it
   # staging-scenario:
-  #   scriptPath: test.js
-  #   schedule: 0 8 * * *
-  #   port: 5656
   #   serviceName: staging-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.staging.dbildungsplattform.de
-  # prod-scenario:
-  #   scriptPath: test.js
-  #   schedule: 0 8 * * *
-  #   port: 5656
+  # prod-scenario: 
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.dbildungsplattform.de
