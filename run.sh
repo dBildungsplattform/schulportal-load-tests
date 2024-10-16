@@ -23,6 +23,7 @@ fi
 
 # einmal Grafana ohne out mit der CSV Datei ()
 # funktinonieren die Ergebnisse in den Logs auch wenn die Parallel laufen? 
+
 for uc in loadtest/usecases/*; do
     if [[ "$uc" =~ "$PATTERN" ]]; then
         filename=${uc##*/}

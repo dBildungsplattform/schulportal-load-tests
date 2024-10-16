@@ -9,6 +9,7 @@ on:
         required: false
         # default: main
         default: DBP-1012-setup-loadtest-env
+
     secrets:
       KUBECONFIG:
         required: true

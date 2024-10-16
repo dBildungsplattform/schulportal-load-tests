@@ -3,6 +3,7 @@ import http from "k6/http";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions, getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
+import { goToStartPage } from "../util/page.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
 const SPSH_BASE = getFrontendUrl();
@@ -19,11 +20,7 @@ export default function main(users = getDefaultUserMix()) {
    */
   let loginUrl = "";
 
-  group("load spsh", () => {
-    const pageResponse = http.get(SPSH_BASE);
-    check(pageResponse, defaultHttpCheck);
-    loadLinkedResourcesAndCheck(pageResponse);
-  });
+  goToStartPage();
 
   group("go to kc login and submit form", () => {
     // load page
