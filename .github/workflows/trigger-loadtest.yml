@@ -8,6 +8,14 @@ on:
         description: 'Branch to take tests and helm/cron setup  from'
         required: false
         default: main
+      pattern:
+        description: 'sets PATTERN env var used as k6 input'
+        required: false
+        default: "default_pattern"
+      config:
+        description: 'sets CONFIG env var used as k6 input'
+        required: false
+        default: "default_config"
 
 jobs:
   run_loadtest:
@@ -18,5 +26,7 @@ jobs:
     uses: ./.github/workflows/install-spsh-loadtest.yml
     with:
       branch: ${{ inputs.branch }} 
-    secrets:
+      pattern: ${{ inputs.pattern }} 
+      config: ${{ inputs.config }} 
+    secrets: 
       KUBECONFIG: ${{ secrets.KUBECONFIG }}

@@ -32,9 +32,13 @@ spec:
               - name: BRANCH
                 value: main
               - name: SPSH_BASE
-                value: https://main.dev.spsh.dbildungsplattform.de
+                value: {{ $.Values.spsh_base }}
               - name: CONFIG
-                value: stress
+                value: {{ $.Values.config }}
+              - name: KC_BASE
+                value: {{ $.Values.kc_base }}
+              - name: PATTERN
+                value: {{ $.Values.pattern }}
             command: ["sh", "-c", 
                         "git clone https://github.com/dBildungsplattform/schulportal-load-tests &&
                         cd schulportal-load-tests && 

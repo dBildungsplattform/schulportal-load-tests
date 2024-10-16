@@ -7,8 +7,15 @@ on:
       branch:
         type: string
         required: false
-        # default: main
-        default: DBP-1012-setup-loadtest-env
+        default: main
+      pattern:
+        type: string
+        required: false
+        default: "default_pattern"
+      config:
+        type: string
+        required: false
+        default: "default_config"
 
     secrets:
       KUBECONFIG:
@@ -76,5 +83,7 @@ jobs:
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
             --set branch="${{ inputs.branch }}" \
+            --set pattern="${{ inputs.pattern }}" \
+            --set config="${{ inputs.config }}" \
             ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', needs.branch_meta.outputs.ticket ) || '--set imageTag="latest"' }} \
             --wait
