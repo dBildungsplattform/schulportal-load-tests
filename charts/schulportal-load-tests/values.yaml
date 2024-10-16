@@ -5,17 +5,14 @@ schedule: 0 8 * * *
 
 cronjobs:
   dev-scenario:
-    scriptPath: 1_goto-sp-oidc.ts # 01, 02, 03 Files
     serviceName: dev-scenario
     environment: main.dev.spsh.dbildungsplattform.de
     # jobsParallelism: not used yet but available? test it
   # staging-scenario:
-  #   scriptPath: 
   #   serviceName: staging-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.staging.dbildungsplattform.de
-  # prod-scenario:
-  #   scriptPath: 
+  # prod-scenario: 
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.dbildungsplattform.de

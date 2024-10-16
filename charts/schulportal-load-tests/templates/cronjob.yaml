@@ -42,8 +42,7 @@ spec:
                         cp /data/json/users.json /home/k6/schulportal-load-tests/loadtest/data/users.json &&
                         chmod +x run.sh &&
                         sleep 3600 &&
-                        ./run.sh
-                        # k6 run -u 0 ./loadtest/usecases/{{ $job_options.scriptPath }} --compatibility-mode=experimental_enhanced"]
+                        ./run.sh"]
             volumeMounts:
               - name: secret-volume
                 mountPath: /secrets
