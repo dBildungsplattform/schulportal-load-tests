@@ -11,11 +11,11 @@ on:
       pattern:
         description: 'sets PATTERN env var used as k6 input'
         required: false
-        default: "default_pattern"
+        default: "stress"
       config:
         description: 'sets CONFIG env var used as k6 input'
         required: false
-        default: "default_config"
+        default: "1"
 
 jobs:
   run_loadtest:
