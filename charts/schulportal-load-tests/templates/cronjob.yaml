@@ -5,7 +5,7 @@ metadata:
   name: loadtest-spsh-{{ $job_name }}
   namespace: spsh
 spec:
-  schedule: {{ $job_options.schedule }}
+  schedule: {{ $.Values.schedule }}
   startingDeadlineSeconds: 300
   suspend: true
   jobTemplate:
@@ -22,7 +22,7 @@ spec:
           automountServiceAccountToken: false
           containers:
           - name: {{ $job_name }}
-            image: ghcr.io/dbildungsplattform/schulportal-load-tests:{{ $job_options.imageTag }}
+            image: ghcr.io/dbildungsplattform/schulportal-load-tests:{{ $.Values.imageTag }}
             imagePullPolicy: Always
             securityContext:
               allowPrivilegeEscalation: false
@@ -52,7 +52,7 @@ spec:
                 mountPath: /data/json
                 readOnly: true
             ports:
-            - containerPort: {{ $job_options.port }}
+            - containerPort: {{ $.Values.port }}
               name: loadtest-pod
           volumes:
           - name: secret-volume

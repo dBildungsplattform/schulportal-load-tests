@@ -50,4 +50,5 @@ jobs:
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
             --set branch="${{ inputs.branch }}"\
+            ${{ inputs.branch != 'main' && format('--set imageTag={0}', inputs.branch) || '--set imageTag=latest' }} \
             --wait
