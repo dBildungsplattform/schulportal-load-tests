@@ -7,14 +7,17 @@ on:
       branch:
         description: 'Branch to take tests and helm/cron setup  from'
         required: false
+        type: string
         default: main
       pattern:
         description: 'sets PATTERN env var used as k6 input'
         required: false
+        type: string
         default: "stress"
       config:
         description: 'sets CONFIG env var used as k6 input'
         required: false
+        type: string
         default: "1"
 
 jobs:
