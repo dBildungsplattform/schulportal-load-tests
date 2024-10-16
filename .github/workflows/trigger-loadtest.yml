@@ -8,9 +8,6 @@ on:
         description: 'Branch to take tests and helm/cron setup  from'
         required: false
         default: main
-  push:
-    branch: DBP-1012-setup-loadtest-env #remove later or set to main ? 
-
 
 jobs:
   run_loadtest:
