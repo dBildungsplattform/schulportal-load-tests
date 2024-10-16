@@ -22,16 +22,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  branch_meta:
+    runs-on: ubuntu-latest
+    outputs:
+      ticket: ${{ steps.extract_branch_ticket.outputs.ticket }}
+    steps:
+      - name: Extract project-ticketnumber from branch
+        id: extract_branch_ticket
+        run: |
+          if ${{ github.ref_name == 'main' }}; then
+            echo "ticket=main" >> $GITHUB_OUTPUT
+          else
+            regex='^([[:alpha:]]+?-[[:digit:]]+)'
+            [[ ${{ steps.extract_branch_meta.outputs.branch }} =~ $regex ]]
+            echo "ticket=$(echo ${BASH_REMATCH[1]} | tr [A-Z] [a-z])" >> $GITHUB_OUTPUT
+          fi
+
   rollout:
     runs-on: 'ubuntu-latest'
+    needs: branch_meta
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
         with:
           repository: 'dBildungsplattform/schulportal-load-tests'
           # change this ref to a branch to test changes
-          # ref: "${{ inputs.branch }}"
-          ref: "DBP-1012-setup-loadtest-env"
+          ref: "${{ inputs.branch }}"
 
       - name: Install kubectl and Helm
         uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
@@ -50,5 +66,5 @@ jobs:
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
             --set branch="${{ inputs.branch }}" \
-            ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', 'DBP-1012') || '--set imageTag="latest"' }} \
+            ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', needs.branch_meta.outputs.ticket ) || '--set imageTag="latest"' }} \
             --wait
