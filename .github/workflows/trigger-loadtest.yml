@@ -3,8 +3,14 @@ name: Trigger Loadtest
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to take tests and helm/cron setup  from'
+        required: true
+        default: main
   push:
-    branch: DBP-1012-setup-loadtest-env
+    branch: DBP-1012-setup-loadtest-env #remove later or set to main ? 
+
 
 jobs:
   run_loadtest:
@@ -12,9 +18,8 @@ jobs:
       packages: write
       security-events: write
       contents: read
-    uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
+    uses: ./.github/workflows/install-spsh-loadtest.yml
     with:
-      branch: DBP-1012-setup-loadtest-env #
+      branch: ${{ inputs.branch }} 
     secrets:
-      # token: ${{ secrets.GITHUB_TOKEN }} # not sure whether this is needed
       KUBECONFIG: ${{ secrets.KUBECONFIG }}

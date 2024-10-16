@@ -1,5 +1,5 @@
 ---
-name: Install and Run SPSH Loadtest Action 
+name: Install SPSH Loadtest Action 
 
 on: 
   workflow_call:

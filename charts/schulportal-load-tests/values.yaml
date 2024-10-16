@@ -6,19 +6,20 @@ cronjobs:
     schedule: 0 8 * * *
     port: 5656
     serviceName: dev-scenario
-    # image-tag: latest
-    imageTag: DBP-1012
+    imageTag: 
+      ${{ if eq(git.branch, 'main') }}: latest
+      ${{ else }}: ${{ git.branch }}
     environment: main.dev.spsh.dbildungsplattform.de
     # jobsParallelism: not used yet but available? test it
   # staging-scenario:
-  #   scriptPath: test.js
+  #   scriptPath: 
   #   schedule: 0 8 * * *
   #   port: 5656
   #   serviceName: staging-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.staging.dbildungsplattform.de
   # prod-scenario:
-  #   scriptPath: test.js
+  #   scriptPath: 
   #   schedule: 0 8 * * *
   #   port: 5656
   #   serviceName: prod-scenario
