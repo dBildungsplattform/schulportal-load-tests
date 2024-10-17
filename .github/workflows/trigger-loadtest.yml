@@ -17,6 +17,7 @@ on:
       config:
         description: 'sets CONFIG env var used as k6 input'
         required: false
+        type: number
         default: 1
 
 jobs:
