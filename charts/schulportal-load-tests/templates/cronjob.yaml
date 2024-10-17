@@ -52,7 +52,7 @@ spec:
                 mountPath: /data/json
                 readOnly: true
             ports:
-            - containerPort: {{ $job_options.port }}
+            - containerPort: {{ $.Values.port }}
               name: loadtest-pod
           volumes:
           - name: secret-volume

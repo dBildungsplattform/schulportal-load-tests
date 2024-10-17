@@ -12,7 +12,7 @@ if [[ -z "$PATTERN" ]]; then
     PATTERN="*"
 fi
 
-# KC_BASE=$2 # not needed yet
+KC_BASE=$4 # not needed yet
 
 SKIP_SSL=1
 if [[ "$SPSH_BASE" =~ "localhost" ]]; then
