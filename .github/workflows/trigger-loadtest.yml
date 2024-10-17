@@ -13,12 +13,12 @@ on:
         description: 'sets PATTERN env var used as k6 input'
         required: false
         type: string
-        default: "stress"
+        default: "login"
       config:
         description: 'sets CONFIG env var used as k6 input'
         required: false
-        type: number
-        default: 1
+        type: string
+        default: "debug"
 
 jobs:
   run_loadtest:

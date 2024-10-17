@@ -11,11 +11,11 @@ on:
       pattern:
         type: string
         required: false
-        default: "default_pattern"
+        default: "login"
       config:
-        type: number 
+        type: string 
         required: false
-        default: 1
+        default: "debug"
 
     secrets:
       KUBECONFIG:
