@@ -1,5 +1,8 @@
 SPSH_BASE=$1
 CONFIG=$2 # stage configuration (spike, stress, breakpoint)
+
+echo  SPSH_BASE="$SPSH_BASE"  CONFIG="$CONFIG"  KC_BASE="$KC_BASE" 
+
 if [[ -z "$CONFIG" ]]; then
     echo "no config specified"
     return 1
