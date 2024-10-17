@@ -5,7 +5,7 @@ metadata:
   name: loadtest-spsh-{{ $job_name }}
   namespace: spsh
 spec:
-  schedule: {{ $.Values.schedule }}
+  schedule: {{ $job_options.schedule }}
   startingDeadlineSeconds: 300
   suspend: true
   jobTemplate:
@@ -43,7 +43,7 @@ spec:
                         git checkout {{ $.Values.branch }} && 
                         cp /data/json/users.json /home/k6/schulportal-load-tests/loadtest/data/users.json &&
                         chmod +x run.sh &&
-                        ./run.sh"]
+                        ./run.sh $SPSH_BASE $CONFIG $PATTERN $KC_BASE "]
             volumeMounts:
               - name: secret-volume
                 mountPath: /secrets
@@ -52,7 +52,7 @@ spec:
                 mountPath: /data/json
                 readOnly: true
             ports:
-            - containerPort: {{ $.Values.port }}
+            - containerPort: {{ $job_options.port }}
               name: loadtest-pod
           volumes:
           - name: secret-volume
