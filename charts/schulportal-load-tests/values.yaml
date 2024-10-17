@@ -1,6 +1,6 @@
 branch: "main"
 imageTag: latest #default latest, release oder main ? 
-port: 56
+port: 5656
 schedule: 0 8 * * *
 pattern: "dummy_pattern"
 config: "dummy_config"

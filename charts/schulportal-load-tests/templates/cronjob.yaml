@@ -27,16 +27,14 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
             env:
-              - name: OPTIONS_FILE_PATH
-                value: testoption.json
               - name: BRANCH
                 value: {{ $.Values.branch }}
               - name: SPSH_BASE
-                value: {{ $.Values.spsh_base }}
+                value: {{ $job_options.spsh_base }}
               - name: CONFIG
                 value: {{ $.Values.config }}
               - name: KC_BASE
-                value: {{ $.Values.kc_base }}
+                value: {{ $job_options.kc_base }}
               - name: PATTERN
                 value: {{ $.Values.pattern }}
             command: ["sh", "-c", 
