@@ -27,22 +27,23 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
             env:
-              - name: OPTIONS_FILE_PATH
-                value: testoption.json
               - name: BRANCH
-                value: main
+                value: {{ $.Values.branch }}
               - name: SPSH_BASE
-                value: https://main.dev.spsh.dbildungsplattform.de
+                value: {{ $job_options.spsh_base }}
               - name: CONFIG
-                value: stress
+                value: {{ $.Values.config }}
+              - name: KC_BASE
+                value: {{ $job_options.kc_base }}
+              - name: PATTERN
+                value: {{ $.Values.pattern }}
             command: ["sh", "-c", 
                         "git clone https://github.com/dBildungsplattform/schulportal-load-tests &&
                         cd schulportal-load-tests && 
                         git checkout {{ $.Values.branch }} && 
                         cp /data/json/users.json /home/k6/schulportal-load-tests/loadtest/data/users.json &&
                         chmod +x run.sh &&
-                        sleep 3600 &&
-                        ./run.sh"]
+                        ./run.sh $SPSH_BASE $CONFIG $PATTERN $KC_BASE "]
             volumeMounts:
               - name: secret-volume
                 mountPath: /secrets
