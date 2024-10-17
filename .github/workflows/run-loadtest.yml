@@ -1,0 +1,46 @@
+---
+name: Trigger SPSH Loadtest CronJob
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Git branch the cronjob was deployed from'
+        type: string
+        required: false
+        #default: main 
+        default: DBP-1012-setup-loadtest-env
+      scenario:
+        description: 'name of test scenario defined in values.yaml'
+        type: string
+        required: true
+        default: dev-scenario
+      jobname:
+        description: 'name prefix of cronjob, branch and timestamp added automatically'
+        type: string
+        required: false
+        default: loadtest-spsh
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
+        with:
+          repository: 'dBildungsplattform/schulportal-load-tests'
+          ref: "${{ inputs.branch }}"
+
+      - name: Install kubectl and Helm
+        uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
+
+      - name: Set kubeconfig
+        run: |
+          mkdir /home/runner/.kube/
+          echo "${{ secrets.KUBECONFIG }}" > /home/runner/.kube/config
+          chmod 600 /home/runner/.kube/config
+
+      - name: Trigger Loadtest CronJob
+        run: |
+          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.jobname}}-${{inputs.branch}}$(date +%d.%m.%Y-%H:%M:%S) -n spsh
+        # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>

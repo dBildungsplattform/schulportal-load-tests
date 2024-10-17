@@ -1,5 +1,5 @@
 ---
-name: Trigger Loadtest
+name: Update Loadtest Cfg
 
 on:
   workflow_dispatch:
