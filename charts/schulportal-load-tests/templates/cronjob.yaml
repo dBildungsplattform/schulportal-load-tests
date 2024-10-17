@@ -30,7 +30,7 @@ spec:
               - name: OPTIONS_FILE_PATH
                 value: testoption.json
               - name: BRANCH
-                value: main
+                value: {{ $.Values.branch }}
               - name: SPSH_BASE
                 value: {{ $.Values.spsh_base }}
               - name: CONFIG
@@ -45,7 +45,6 @@ spec:
                         git checkout {{ $.Values.branch }} && 
                         cp /data/json/users.json /home/k6/schulportal-load-tests/loadtest/data/users.json &&
                         chmod +x run.sh &&
-                        sleep 3600 &&
                         ./run.sh"]
             volumeMounts:
               - name: secret-volume

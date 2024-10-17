@@ -36,7 +36,7 @@ for uc in loadtest/usecases/*; do
         if [[ -w "$csv" ]]; then
             options="${options} --out csv=${csv}"
         fi
-
+        echo k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
         k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
     fi
 done
