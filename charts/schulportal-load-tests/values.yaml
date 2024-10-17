@@ -1,6 +1,6 @@
 branch: "main"
 imageTag: latest #default latest, release oder main ? 
-port: 5656
+port: 56
 schedule: 0 8 * * *
 pattern: "dummy_pattern"
 config: "dummy_config"
@@ -9,7 +9,7 @@ cronjobs:
   dev-scenario:
     serviceName: dev-scenario
     spsh_base: main.dev.spsh.dbildungsplattform.de
-    kc_base: "dummy_kc_base"
+    kc_base: "kc_base"
     # jobsParallelism: not used yet but available? test it
   # staging-scenario:
   #   serviceName: staging-scenario
