@@ -25,6 +25,11 @@ on:
         type: string
         required: true
         default: dev-scenario
+      execute:
+        description: "if true, directly executes cronjob after install"
+        type: boolean
+        required: true
+        default: true
 
 jobs:
   install_loadtest:
@@ -37,14 +42,9 @@ jobs:
       branch: ${{ inputs.branch }} 
       pattern: ${{ inputs.pattern }} 
       config: ${{ inputs.config }} 
+      scenario: ${{ inputs.scenario }}
+      execute: ${{ inputs.execute }}
     secrets: 
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
-  run_loadtest:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Loadtest CronJob
-        run: |
-          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{inputs.branch}}$(date +%d.%m.%Y-%H:%M:%S) -n spsh
-        # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
     

@@ -16,6 +16,14 @@ on:
         type: string 
         required: false
         default: "debug"
+      scenario:
+        type: string
+        required: true
+        default: dev-scenario
+      execute:
+        type: boolean
+        required: true
+        default: true
 
     secrets:
       KUBECONFIG:
@@ -87,3 +95,8 @@ jobs:
             --set config="${{ inputs.config }}" \
             ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', needs.branch_meta.outputs.ticket ) || '--set imageTag="latest"' }} \
             --wait
+
+      - name: Trigger Loadtest CronJob
+        run: |
+          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{inputs.branch}}$(date +%d.%m.%Y-%H:%M:%S) -n spsh
+        # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
