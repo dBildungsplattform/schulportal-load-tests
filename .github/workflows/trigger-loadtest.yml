@@ -15,10 +15,9 @@ on:
         type: string
         default: "stress"
       config:
-        description: 'sets CONFIG env var used as k6 input, set numbers in "" '
+        description: 'sets CONFIG env var used as k6 input'
         required: false
-        type: string
-        default: '"1"'
+        default: 1
 
 jobs:
   run_loadtest:

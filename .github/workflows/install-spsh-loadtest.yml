@@ -13,9 +13,9 @@ on:
         required: false
         default: "default_pattern"
       config:
-        type: string
+        type: number 
         required: false
-        default: "default_config"
+        default: 1
 
     secrets:
       KUBECONFIG:
