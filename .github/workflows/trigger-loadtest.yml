@@ -8,8 +8,7 @@ on:
         description: 'Branch to take tests and helm/cron setup  from'
         required: false
         type: string
-        default: DBP-1012-setup-loadtest-env
-        # default: main
+        default: main
       pattern:
         description: 'sets PATTERN env var used as k6 input'
         required: false
