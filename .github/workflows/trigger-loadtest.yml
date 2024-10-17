@@ -37,7 +37,7 @@ jobs:
       packages: write
       security-events: write
       contents: read
-    uses: ./.github/workflows/install-spsh-loadtest.yml
+    uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
     with:
       branch: ${{ inputs.branch }} 
       pattern: ${{ inputs.pattern }} 
