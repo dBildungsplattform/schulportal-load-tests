@@ -99,5 +99,5 @@ jobs:
       - name: Trigger Loadtest CronJob
         if: ${{ inputs.execute }}
         run: |
-          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{inputs.branch}}$(date +%d.%m.%Y-%H%M) -n spsh
+          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{needs.branch_meta.outputs.branch}}-$(date +%d.%m.%Y-%H%M) -n spsh
         # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
