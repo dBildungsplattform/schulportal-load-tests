@@ -96,8 +96,15 @@ jobs:
             ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', needs.branch_meta.outputs.ticket ) || '--set imageTag="latest"' }} \
             --wait
 
+      - name: Convert branch name to lowercase
+        id: convert_branch
+        run: |
+          LOWERCASE_BRANCH=$(echo "${{ inputs.branch }}" | tr '[:upper:]' '[:lower:]')
+          echo "Lowercase branch: $LOWERCASE_BRANCH"
+          echo "::set-output name=lowercase_branch::$LOWERCASE_BRANCH"
+
       - name: Trigger Loadtest CronJob
         if: ${{ inputs.execute }}
         run: |
-          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{needs.branch_meta.outputs.branch}}-$(date +%d.%m.%Y-%H%M) -n spsh
+          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{steps.convert_branch.outputs.lowercase_branch}}-$(date +%d.%m.%Y-%H%M) -n spsh
         # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
