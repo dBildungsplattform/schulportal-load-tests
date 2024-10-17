@@ -5,7 +5,7 @@ metadata:
   name: loadtest-spsh-{{ $job_name }}
   namespace: spsh
 spec:
-  schedule: {{ $job_options.schedule }}
+  schedule: {{ $.Values.schedule }}
   startingDeadlineSeconds: 300
   suspend: true
   jobTemplate:
