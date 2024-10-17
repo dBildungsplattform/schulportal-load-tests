@@ -26,7 +26,7 @@ on:
         required: true
         default: dev-scenario
       execute:
-        description: "if true, directly executes cronjob after install"
+        description: "execute cronjob scenario after install"
         type: boolean
         required: true
         default: true
