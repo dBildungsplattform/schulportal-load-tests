@@ -82,7 +82,7 @@ jobs:
             ./charts/schulportal-load-tests \
             --namespace spsh \
             --kubeconfig /home/runner/.kube/config \
-            --values ./charts/values.yaml \
+            --values values.yaml \
             --set branch="${{ inputs.branch }}" \
             --set pattern="${{ inputs.pattern }}" \
             --set config="${{ inputs.config }}" \
