@@ -1,5 +1,5 @@
 ---
-name: Update Loadtest Cfg
+name: Trigger Loadtest 
 
 on:
   workflow_dispatch:
@@ -20,9 +20,14 @@ on:
         required: false
         type: string
         default: "debug"
+      scenario:
+        description: 'name of test scenario defined in values.yaml'
+        type: string
+        required: true
+        default: dev-scenario
 
 jobs:
-  run_loadtest:
+  install_loadtest:
     permissions:
       packages: write
       security-events: write
@@ -34,3 +39,12 @@ jobs:
       config: ${{ inputs.config }} 
     secrets: 
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+  run_loadtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Loadtest CronJob
+        run: |
+          kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{inputs.branch}}$(date +%d.%m.%Y-%H:%M:%S) -n spsh
+        # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
+    
