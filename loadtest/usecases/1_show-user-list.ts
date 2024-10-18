@@ -5,42 +5,32 @@ import {
   getPersonen,
   getPersonenIds,
   getPersonenUebersicht,
-  getRollen,
-  PersonenUebersicht,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
-import goToStart from "./1_show-start.ts";
+import { userListPage } from "../pages/user-list";
+import login from "../util/page";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index";
 
 export const options = {
   ...getDefaultOptions(),
 };
 
 export default function main(users = getDefaultAdminMix()) {
-  goToStart(users);
-
+  login(users.getLogin());
   // these are used to test the filters
   let orgId = "";
   let rolleId = "";
-  let personenuebersicht: PersonenUebersicht | undefined = undefined;
+  let personenuebersicht: DBiamPersonenuebersichtResponse | undefined =
+    undefined;
 
   group("load user page", () => {
+    const { organisationen, personenuebersichten, rollen } =
+      userListPage.fetchData();
     getLoginInfo();
-    const organisationen = getOrganisationen([
-      "limit=25",
-      "systemrechte=PERSONEN_VERWALTEN",
-      "excludeTyp=KLASSE",
-    ]);
     orgId = pickRandomItem(organisationen).id;
-
-    for (let i = 0; i < 2; i++) {
-      const personIds = getPersonenIds();
-      const personenuebersichten = getPersonenUebersicht(personIds);
-      personenuebersicht = pickRandomItem(personenuebersichten);
-    }
-
-    const rollen = getRollen(["rolleName="]);
+    personenuebersicht = pickRandomItem(personenuebersichten);
     rolleId = pickRandomItem(rollen).id;
   });
 

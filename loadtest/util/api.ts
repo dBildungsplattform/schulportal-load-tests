@@ -26,7 +26,7 @@ export function makeQueryString(pairs: Array<string>): string {
 }
 
 export function makeHttpRequest(
-  verb: string,
+  verb: "get" | "post",
   resource: string,
   options?: Partial<{
     query: Array<string>;
@@ -42,6 +42,12 @@ export function makeHttpRequest(
       resource,
     },
   });
+}
+
+export function getLogin(query: Array<string>) {
+  const response = makeHttpRequest("get", "auth/login", { query });
+  check(response, defaultHttpCheck);
+  return response;
 }
 
 export function getLoginInfo() {

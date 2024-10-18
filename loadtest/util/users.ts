@@ -15,6 +15,25 @@ export enum ROLE {
   LEIT = "LEIT",
   SYSADMIN = "SYSADMIN",
 }
+export type LoginData = Pick<User, "username" | "password">;
+
+// map a role to an absolute number of users
+function mapRoleToCount(role: ROLE): number {
+  switch (role) {
+    case ROLE.LERN:
+      return 24_000;
+    case ROLE.LEHR:
+      return 6_000;
+    case ROLE.EXTERN:
+      return 0;
+    case ROLE.ORGADMIN:
+      return 0;
+    case ROLE.LEIT:
+      return 300;
+    case ROLE.SYSADMIN:
+      return 4;
+  }
+}
 
 type UserRatio = Record<keyof typeof ROLE, number>;
 
@@ -35,10 +54,10 @@ export function getDefaultAdminMix(): UserMix {
 
 export function getDefaultUserMix(): UserMix {
   return new UserMix({
-    SYSADMIN: 3,
-    LEIT: 250,
-    LEHR: 1000,
-    LERN: 24000,
+    SYSADMIN: 12 / 4,
+    LEIT: 1000 / 4,
+    LEHR: 6000 / 4,
+    LERN: 24000 / 4,
   });
 }
 
@@ -62,7 +81,7 @@ export class UserMix {
     this.initializeTracker();
   }
 
-  getLogin(): Pick<User, "username" | "password"> {
+  getLogin(): LoginData {
     const user = this.getUser();
     return {
       username: user.username,
@@ -91,7 +110,7 @@ export class UserMix {
         (this.currentRoleIndex + 1) % this.rolePool.length;
       [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
     }
-    if (!currentRoleCount) this.initializeTracker();
+    if (currentRoleCount <= 0) this.initializeTracker();
     [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
     this.tracker.set(currentRole, currentRoleCount - 1);
     return currentRole;
@@ -107,5 +126,11 @@ export class UserMix {
     for (const [key, value] of this.initialTracker) {
       this.tracker.set(key, value);
     }
+  }
+
+  getTotalUserNumber() {
+    return this.rolePool.reduce((total, role) => {
+      return total + mapRoleToCount(role);
+    }, 0);
   }
 }

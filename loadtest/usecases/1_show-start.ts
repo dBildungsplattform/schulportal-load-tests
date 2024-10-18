@@ -1,27 +1,17 @@
 import { group, sleep } from "k6";
-import {
-  getLoginInfo,
-  getServiceProviderLogos,
-  getServiceProviders,
-} from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
-import { goToStartPage } from "../util/page.ts";
-import { getDefaultAdminMix } from "../util/users.ts";
-import login from "./1_login.ts";
+import { login } from "../util/page.ts";
+import { getDefaultUserMix } from "../util/users.ts";
+
+const users = getDefaultUserMix();
 
 export const options = {
-  ...getDefaultOptions(),
+  ...getDefaultOptions(users),
 };
 
-export default function main(users = getDefaultAdminMix()) {
-  login(users);
-
+export default function main() {
   group("load start page", () => {
-    goToStartPage();
-
-    getLoginInfo();
-    const providers = getServiceProviders();
-    getServiceProviderLogos(providers);
+    login(users.getLogin());
   });
 
   sleep(1);
