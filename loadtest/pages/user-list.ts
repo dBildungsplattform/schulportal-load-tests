@@ -6,15 +6,15 @@ import {
   getRollen,
 } from "../util/api.ts";
 import { getFrontendUrl } from "../util/config.ts";
+import { loadPage } from "../util/page.ts";
 import { PageObject } from "./index.ts";
 
-class UserListPage extends PageObject {
-  constructor() {
-    super("UserList", `${getFrontendUrl()}admin/personen`);
-  }
+class UserListPage implements PageObject {
+  name = "UserList";
+  url = `${getFrontendUrl()}admin/personen`;
 
   navigate(): void {
-    super.navigate();
+    loadPage(this.url, this.name);
     this.fetchData();
   }
 

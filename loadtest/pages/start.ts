@@ -4,15 +4,16 @@ import {
   getServiceProviders,
 } from "../util/api.ts";
 import { getFrontendUrl } from "../util/config.ts";
+import { loadPage } from "../util/page.ts";
 import { PageObject } from "./index.ts";
 
-class StartPage extends PageObject {
-  constructor() {
-    super("Start", getFrontendUrl());
-  }
+// class StartPage extends PageObject {
+class StartPage implements PageObject {
+  name = "Start";
+  url = getFrontendUrl();
 
   navigate(): void {
-    super.navigate();
+    loadPage(this.url, this.name);
     this.fetchData();
   }
 

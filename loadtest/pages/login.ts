@@ -3,12 +3,16 @@ import { get, post, RefinedResponse, ResponseType } from "k6/http";
 import { getLogin } from "../util/api.ts";
 import { getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
+import { loadPage } from "../util/page.ts";
 import { LoginData } from "../util/users.ts";
 import { PageObject } from "./index.ts";
 
-class LoginPage extends PageObject {
-  constructor() {
-    super("Login", getFrontendUrl());
+class LoginPage implements PageObject {
+  name = "Login";
+  url = getFrontendUrl();
+
+  navigate() {
+    loadPage(this.url, this.name);
   }
 
   /**
