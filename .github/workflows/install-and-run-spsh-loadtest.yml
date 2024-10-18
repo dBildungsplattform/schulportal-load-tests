@@ -118,7 +118,6 @@ jobs:
 
         run: |
           for scenario in "${SCENARIOS[@]}"; do
-          do
             kubectl create job --from=cronjob/loadtest-spsh-${scenario} ${scenario}-${{ steps.convert_branch.outputs.lowercase_branch }}-$(date +%d.%m.%Y-%H%M) -n spsh
           done
         shell: bash
