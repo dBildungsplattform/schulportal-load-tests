@@ -1,0 +1,49 @@
+---
+name: Trigger Loadtest 
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to take tests and helm/cron setup  from'
+        required: false
+        type: string
+        default: main
+      pattern:
+        description: 'sets PATTERN env var used as k6 input'
+        required: false
+        type: string
+        default: "login"
+      config:
+        description: 'sets CONFIG env var used as k6 input'
+        required: false
+        type: string
+        default: "debug"
+      scenario:
+        description: 'name of test scenario defined in values.yaml'
+        type: string
+        required: true
+        default: dev-scenario
+      execute:
+        description: "execute cronjob scenario after install"
+        type: boolean
+        required: true
+        default: true
+
+jobs:
+  install_loadtest:
+    permissions:
+      packages: write
+      security-events: write
+      contents: read
+    uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
+    with:
+      branch: ${{ inputs.branch }} 
+      pattern: ${{ inputs.pattern }} 
+      config: ${{ inputs.config }} 
+      scenario: ${{ inputs.scenario }}
+      execute: ${{ inputs.execute }}
+    secrets: 
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+    
