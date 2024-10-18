@@ -103,6 +103,12 @@ jobs:
           echo "Lowercase branch: $LOWERCASE_BRANCH"
           echo "::set-output name=lowercase_branch::$LOWERCASE_BRANCH"
 
+      - name: Split the input string into an array
+        if: ${{ inputs.execute }}
+        run: |
+          IFS=',' read -ra SCENARIOS <<< "${{ github.event.inputs.scenario-list }}"
+          echo "SCENARIOS=${SCENARIOS[@]}" >> $GITHUB_ENV
+
       - name: Trigger Loadtest CronJob
         if: ${{ inputs.execute }}
         
@@ -111,8 +117,7 @@ jobs:
         # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
 
         run: |
-          scenarios=(${{ inputs.scenario-list }//,/ })
-          for scenario in "${scenarios[@]}"
+          for scenario in "${SCENARIOS[@]}"; do
           do
             kubectl create job --from=cronjob/loadtest-spsh-${scenario} ${scenario}-${{ steps.convert_branch.outputs.lowercase_branch }}-$(date +%d.%m.%Y-%H%M) -n spsh
           done
