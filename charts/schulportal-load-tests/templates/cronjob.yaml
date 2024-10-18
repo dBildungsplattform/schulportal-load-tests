@@ -54,6 +54,13 @@ spec:
             ports:
             - containerPort: {{ $.Values.port }}
               name: loadtest-pod
+            resources:
+              limits:
+                memory: "12288Mi"    
+                cpu: "3500m"        
+              requests:
+                memory: "8192Mi"     
+                cpu: "3000m"        
           volumes:
           - name: secret-volume
             secret:
