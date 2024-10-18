@@ -28,18 +28,20 @@ for uc in loadtest/usecases/*; do
     if [[ "$uc" =~ "$PATTERN" ]]; then
         # setup csv file for output
         filename=${uc##*/}
-        csv="output/${filename%.ts}.csv"
-        touch "$csv"
+        # csv="output/${filename%.ts}.csv"
+        # touch "$csv"
 
         # compatibility-mode for typescript
-        options="--compatibility-mode=experimental_enhanced"
+        options="--compatibility-mode=experimental_enhanced -o experimental-prometheus-rw"
         if [[ "$SKIP_SSL" -eq 0 ]]; then
             options="${options} --insecure-skip-tls-verify"
         fi
-        if [[ -w "$csv" ]]; then
-            options="${options} --out csv=${csv}"
-        fi
-        echo k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+        # if [[ -w "$csv" ]]; then
+        #     options="${options} --out csv=${csv}"
+        # fi
+        # echo k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+        # k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+        K6_PROMETHEUS_RW_SERVER_URL=http://application-kube-prometheu-prometheus.monitoring:9090/api/v1/write \
         k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
     fi
 done
