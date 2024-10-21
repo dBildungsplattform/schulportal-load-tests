@@ -9,7 +9,7 @@ import {
   getOrganisationen,
   getPersonenIds,
   getPersonenUebersicht,
-  getRollen,
+  getRollenAsAdmin,
   getServiceProviderLogos,
   getServiceProviders,
 } from "./api.ts";
@@ -45,7 +45,7 @@ export function navigateToUserList(users = getDefaultAdminMix()) {
     getPersonenUebersicht(personIds);
   }
 
-  getRollen(["rolleName="]);
+  getRollenAsAdmin(["rolleName="]);
 }
 
 export function loadPage(url: string) {

@@ -3,12 +3,18 @@ import http, { RefinedParams, RequestBody, ResponseType } from "k6/http";
 import {
   DbiamCreatePersonWithPersonenkontexteBodyParams,
   DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
+  DBiamPersonenuebersichtResponse,
   DBiamPersonResponse,
   FindRollenResponse,
   OrganisationResponse,
+  ParentOrganisationenResponse,
+  PersonendatensatzResponse,
   PersonenkontextWorkflowResponse,
   PersonFrontendControllerFindPersons200Response,
+  RolleWithServiceProvidersResponse,
   ServiceProviderResponse,
+  TokenRequiredResponse,
+  TokenStateResponse,
   UserinfoResponse,
 } from "../api-client/generated/index.ts";
 import {
@@ -98,6 +104,24 @@ export function getAdministeredOrganisationenById(
   return response.json() as unknown as Array<OrganisationResponse>;
 }
 
+export function getParentOrganisationenByIds(organisationIds: Array<string>) {
+  const body = JSON.stringify({
+    organisationIds,
+  });
+  const params = {
+    headers: { "Content-Type": "application/json" },
+  };
+  const response = makeHttpRequest("post", "organisationen/parents-by-ids", {
+    body,
+    params,
+  });
+  check(response, {
+    "got 201": getStatusChecker(201),
+    ...defaultTimingCheck,
+  });
+  return response.json() as unknown as ParentOrganisationenResponse;
+}
+
 export function getPersonenIds(
   personen?: PersonFrontendControllerFindPersons200Response,
 ): Set<string> {
@@ -109,6 +133,12 @@ export function getPersonen(query?: Array<string>) {
   const response = makeHttpRequest("get", "personen-frontend", { query });
   check(response, defaultHttpCheck);
   return response.json() as unknown as PersonFrontendControllerFindPersons200Response;
+}
+
+export function getPersonById(id: string, query?: Array<string>) {
+  const response = makeHttpRequest("get", `personen/${id}`, { query });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as PersonendatensatzResponse;
 }
 
 export function getPersonenUebersicht(personIds: Set<string>) {
@@ -131,7 +161,16 @@ export function getPersonenUebersicht(personIds: Set<string>) {
   ) as unknown as DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response["items"];
 }
 
-export function getRollen(query?: Array<string>) {
+export function getPersonenUebersichtById(personId: string) {
+  const response = makeHttpRequest(
+    "get",
+    `dbiam/personenuebersicht/${personId}`,
+  );
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as DBiamPersonenuebersichtResponse;
+}
+
+export function getRollenAsAdmin(query?: Array<string>) {
   const response = makeHttpRequest("get", "person-administration/rollen", {
     query,
   });
@@ -139,6 +178,14 @@ export function getRollen(query?: Array<string>) {
   return response.json(
     "moeglicheRollen",
   ) as unknown as FindRollenResponse["moeglicheRollen"];
+}
+
+export function getRollen(query: Array<string>) {
+  const response = makeHttpRequest("get", "person-administration/rollen", {
+    query,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as Array<RolleWithServiceProvidersResponse>;
 }
 
 export function getPersonenkontextWorkflowStep(query?: Array<string>) {
@@ -164,4 +211,20 @@ export function postPersonenkontextWorkflow(
     ...defaultTimingCheck,
   });
   return response.json() as unknown as DBiamPersonResponse;
+}
+
+export function getTwoFactorRequired(query: Array<string>) {
+  const response = makeHttpRequest("get", "2fa-token/required", {
+    query,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as TokenRequiredResponse;
+}
+
+export function getTwoFactorState(query: Array<string>) {
+  const response = makeHttpRequest("get", "2fa-token/state", {
+    query,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as TokenStateResponse;
 }

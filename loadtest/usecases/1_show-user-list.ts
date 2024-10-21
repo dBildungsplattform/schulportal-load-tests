@@ -1,12 +1,12 @@
 import { group, sleep } from "k6";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
 import {
   getLoginInfo,
   getOrganisationen,
   getPersonen,
   getPersonenIds,
   getPersonenUebersicht,
-  getRollen,
-  PersonenUebersicht,
+  getRollenAsAdmin,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
@@ -23,7 +23,8 @@ export default function main(users = getDefaultAdminMix()) {
   // these are used to test the filters
   let orgId = "";
   let rolleId = "";
-  let personenuebersicht: PersonenUebersicht | undefined = undefined;
+  let personenuebersicht: DBiamPersonenuebersichtResponse | undefined =
+    undefined;
 
   group("load user page", () => {
     getLoginInfo();
@@ -40,7 +41,7 @@ export default function main(users = getDefaultAdminMix()) {
       personenuebersicht = pickRandomItem(personenuebersichten);
     }
 
-    const rollen = getRollen(["rolleName="]);
+    const rollen = getRollenAsAdmin(["rolleName="]);
     rolleId = pickRandomItem(rollen).id;
   });
 
