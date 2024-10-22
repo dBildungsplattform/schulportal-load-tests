@@ -1,4 +1,4 @@
-import { fail, group } from "k6";
+import { check, fail, group } from "k6";
 import { get, post, RefinedResponse, ResponseType } from "k6/http";
 import { getLogin } from "../util/api.ts";
 import { getFrontendUrl } from "../util/config.ts";
@@ -44,12 +44,17 @@ class LoginPage implements PageObject {
   ) {
     const doc = response.html();
     const actionUrl = doc.find("#kc-form-login").attr("action");
-    if (!actionUrl) fail("action for #kc-form-login was not found");
+    if (
+      !check(actionUrl, {
+        "action url found": (url) => url != undefined,
+      })
+    )
+      fail("action for #kc-form-login was not found");
     const loginData = {
       ...user,
       credentialId: "",
     };
-    return post(actionUrl, loginData, {
+    return post(actionUrl!, loginData, {
       redirects: 0,
       tags: { name: "post login-form" },
     });
@@ -59,7 +64,11 @@ class LoginPage implements PageObject {
     // retrieve the loginUrl from the response
     // this includes state, session_state, iss and security code
     const loginUrl = response.headers["Location"];
-    if (!loginUrl) {
+    if (
+      !check(loginUrl, {
+        "login url found": (url) => url != undefined,
+      })
+    ) {
       fail("did not find Location in kc response");
     }
     // this redirects to the start page

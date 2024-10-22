@@ -7,12 +7,7 @@ import { getDefaultOptions } from "../util/config.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
 const successfulLoginCounter = new Counter("successful_logins_counter");
-const unsuccessfulLoginCounter = new Counter("unsuccessful_logins_counter");
 const successfulLoginDuration = new Trend("successful_logins_duration", true);
-const unsuccessfulLoginDuration = new Trend(
-  "unsuccessful_logins_duration",
-  true,
-);
 const users = getDefaultUserMix();
 
 export const options = {
@@ -58,9 +53,6 @@ export default function main() {
     if (loginSucceeded) {
       successfulLoginCounter.add(1);
       successfulLoginDuration.add(endTime.valueOf() - startTime.valueOf());
-    } else {
-      unsuccessfulLoginCounter.add(1);
-      unsuccessfulLoginDuration.add(endTime.valueOf() - startTime.valueOf());
     }
   });
 
