@@ -1,5 +1,3 @@
-#!/bin/bash
-
 SPSH_BASE=$1
 CONFIG=$2 # stage configuration (spike, stress, breakpoint)
 
