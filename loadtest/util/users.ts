@@ -37,13 +37,27 @@ function mapRoleToCount(role: ROLE): number {
 
 type UserRatio = Record<keyof typeof ROLE, number>;
 
+class LoopIterator<T> {
+  readPosition = 0;
+  constructor(public backingArray: Array<T>) {}
+  next(): T {
+    this.readPosition = ++this.readPosition % this.backingArray.length;
+    return this.backingArray[this.readPosition];
+  }
+}
+
 /**
- * Array of usernames and passwords from users.json
+ * Map of roles to looping iterators of usernames and passwords from users.json
  */
-const users = new SharedArray("users", () => {
-  const f = JSON.parse(open(DATAPATH)) as Array<User>;
-  return f;
-});
+const groupedUsers = new Map<ROLE, LoopIterator<User>>();
+const users = JSON.parse(open(DATAPATH)) as Array<User>;
+for (const [key, role] of Object.entries(ROLE)) {
+  const backingArray = new SharedArray(key, () =>
+    users.filter((user: User) => user.role == role),
+  );
+  const iterator = new LoopIterator<User>(backingArray);
+  groupedUsers.set(role, iterator);
+}
 
 export function getDefaultAdminMix(): UserMix {
   return new UserMix({
@@ -91,12 +105,12 @@ export class UserMix {
 
   getUser(): User {
     const currentRole = this.getCurrentRole();
-    const user = users.find((user) => user.role == currentRole);
+    const user = groupedUsers.get(currentRole);
     if (!user)
       throw new Error(
         `user with requested role ${currentRole} is not present in ${DATAPATH}`,
       );
-    return user;
+    return user.next();
   }
 
   getCurrentRole(): ROLE {
