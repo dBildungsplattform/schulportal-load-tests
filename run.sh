@@ -44,6 +44,6 @@ for uc in loadtest/usecases/*; do
             options="${options} -o experimental-prometheus-rw"
         fi
         K6_PROMETHEUS_RW_SERVER_URL=http://application-kube-prometheu-prometheus.monitoring:9090/api/v1/write \
-        k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" "$uc"
+        k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" --tag usecase="$filename" --tag started=$(date -u +%s) "$uc"
     fi
 done
