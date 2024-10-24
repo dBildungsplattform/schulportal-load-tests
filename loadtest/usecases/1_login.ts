@@ -1,4 +1,4 @@
-import { check, group, sleep } from "k6";
+import { check, group } from "k6";
 import { RefinedResponse, ResponseType } from "k6/http";
 import { Counter, Trend } from "k6/metrics";
 import { loginPage } from "../pages/login.ts";

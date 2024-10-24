@@ -1,5 +1,5 @@
 import { sleep } from "k6";
-import { Counter, Trend } from "k6/metrics/index";
+import { Counter, Trend } from "k6/metrics";
 
 const completedCounter = new Counter("usecases_completed_total");
 const abortedCounter = new Counter("usecases_aborted_total");
