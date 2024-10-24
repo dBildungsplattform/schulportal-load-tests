@@ -7,18 +7,20 @@ const abortedCounter = new Counter("usecases_aborted_total");
 const completedDuration = new Trend("usecases_completed_duration", true);
 const abortedDuration = new Trend("usecases_aborted_duration", true);
 
-export function wrapTestFunction(testFunction: () => void) {
-  const start = Date.now();
-  try {
-    testFunction();
-    completedCounter.add(1);
-    completedDuration.add(Date.now() - start);
-  } catch (error: unknown) {
-    abortedCounter.add(1, { name: getErrorName(error as Error) });
-    abortedDuration.add(Date.now() - start);
-  } finally {
-    sleep(1);
-  }
+export function wrapTestFunction(testFunction: () => void): () => void {
+  return () => {
+    const start = Date.now();
+    try {
+      testFunction();
+      completedCounter.add(1);
+      completedDuration.add(Date.now() - start);
+    } catch (error: unknown) {
+      abortedCounter.add(1, { name: getErrorName(error as Error) });
+      abortedDuration.add(Date.now() - start);
+    } finally {
+      sleep(1);
+    }
+  };
 }
 
 function getErrorName(error: Error): string {
