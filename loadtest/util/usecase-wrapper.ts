@@ -1,8 +1,8 @@
 import { sleep } from "k6";
 import { Counter, Trend } from "k6/metrics";
 
-const completedCounter = new Counter("usecases_completed_total");
-const abortedCounter = new Counter("usecases_aborted_total");
+const completedCounter = new Counter("usecases_completed");
+const abortedCounter = new Counter("usecases_aborted");
 
 const completedDuration = new Trend("usecases_completed_duration", true);
 const abortedDuration = new Trend("usecases_aborted_duration", true);
