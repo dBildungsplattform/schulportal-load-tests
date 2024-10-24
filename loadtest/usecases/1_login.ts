@@ -4,6 +4,7 @@ import { Counter, Trend } from "k6/metrics";
 import { loginPage } from "../pages/login.ts";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions } from "../util/config.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
 const successfulLoginCounter = new Counter("successful_logins_counter");
@@ -14,7 +15,9 @@ export const options = {
   ...getDefaultOptions(users),
 };
 
-export default function main() {
+export default wrapTestFunction(main);
+
+function main() {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
    */
@@ -55,6 +58,4 @@ export default function main() {
       successfulLoginDuration.add(endTime.valueOf() - startTime.valueOf());
     }
   });
-
-  sleep(1);
 }
