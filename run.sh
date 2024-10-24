@@ -45,6 +45,6 @@ for uc in loadtest/usecases/*; do
         fi
         K6_PROMETHEUS_RW_SERVER_URL=http://application-kube-prometheu-prometheus.monitoring:9090/api/v1/write \
         K6_PROMETHEUS_RW_TREND_STATS="p(99)",min,max,avg \
-        k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" --tag usecase="$filename" --tag started="$(date -u +%s)" "$uc"
+        k6 run $options -e SPSH_BASE="$SPSH_BASE" -e CONFIG="$CONFIG" -e KC_BASE="$KC_BASE" --tag hostname="$(hostname)" --tag usecase="$filename" --tag started="$(date -u +%s)" "$uc"
     fi
 done
