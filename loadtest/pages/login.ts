@@ -1,6 +1,6 @@
 import { check, fail, group } from "k6";
 import { get, post, RefinedResponse, ResponseType } from "k6/http";
-import { getLogin } from "../util/api.ts";
+import { getLogin, removeQueryString } from "../util/api.ts";
 import { getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
 import { loadPage } from "../util/page.ts";
@@ -44,19 +44,21 @@ class LoginPage implements PageObject {
   ) {
     const doc = response.html();
     const actionUrl = doc.find("#kc-form-login").attr("action");
+
     if (
       !check(actionUrl, {
         "action url found": (url) => url != undefined,
       })
     )
       fail("action for #kc-form-login was not found");
+
     const loginData = {
       ...user,
       credentialId: "",
     };
     return post(actionUrl!, loginData, {
       redirects: 0,
-      tags: { name: "post login-form" },
+      tags: { name: removeQueryString(actionUrl!) },
     });
   }
 
@@ -73,7 +75,7 @@ class LoginPage implements PageObject {
     }
     // this redirects to the start page
     const loginResponse = get(loginUrl, {
-      tags: { name: "auth/login?..." },
+      tags: { name: removeQueryString(loginUrl) },
     });
     loadLinkedResourcesAndCheck(loginResponse);
     return loginResponse;
