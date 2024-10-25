@@ -21,17 +21,17 @@ export type LoginData = Pick<User, "username" | "password">;
 function mapRoleToCount(role: ROLE): number {
   switch (role) {
     case ROLE.LERN:
-      return 24_000;
+      return 2_000;
     case ROLE.LEHR:
-      return 6_000;
+      return 500;
     case ROLE.EXTERN:
       return 0;
     case ROLE.ORGADMIN:
       return 0;
     case ROLE.LEIT:
-      return 300;
+      return 1000;
     case ROLE.SYSADMIN:
-      return 4;
+      return 12;
   }
 }
 
@@ -59,40 +59,46 @@ for (const [key, role] of Object.entries(ROLE)) {
   groupedUsers.set(role, iterator);
 }
 
-export function getDefaultAdminMix(): UserMix {
-  return new UserMix({
-    SYSADMIN: 3,
-    LEIT: 250,
-  });
+export function getDefaultAdminMix(maxUsers?: number): UserMix {
+  return new UserMix(
+    {
+      SYSADMIN: mapRoleToCount(ROLE.SYSADMIN),
+      LEIT: mapRoleToCount(ROLE.LEIT),
+    },
+    maxUsers,
+  );
 }
 
-export function getDefaultUserMix(): UserMix {
-  return new UserMix({
-    SYSADMIN: 12 / 4,
-    LEIT: 1000 / 4,
-    LEHR: 6000 / 4,
-    LERN: 24000 / 4,
-  });
+export function getDefaultUserMix(maxUsers?: number): UserMix {
+  return new UserMix(
+    {
+      LEHR: mapRoleToCount(ROLE.LEHR),
+      LERN: mapRoleToCount(ROLE.LERN),
+    },
+    maxUsers,
+  );
 }
 
 export class UserMix {
-  rolePool: Array<ROLE>;
-  currentRoleIndex: number;
+  activeRoles: Array<ROLE>;
+  rolePool: LoopIterator<ROLE>;
   tracker: Map<ROLE, number>;
   initialTracker: typeof this.tracker;
+  maxUsers?: number;
 
-  constructor(ratio: Partial<UserRatio>) {
-    this.currentRoleIndex = 0;
-    this.rolePool = [];
+  constructor(ratio: Partial<UserRatio>, maxUsers?: number) {
+    this.activeRoles = [];
     this.tracker = new Map();
     this.initialTracker = new Map();
     for (const role of Object.values(ROLE)) {
       if (ratio[role]) {
-        this.rolePool.push(role);
+        this.activeRoles.push(role);
         this.initialTracker.set(role, ratio[role]);
       }
     }
     this.initializeTracker();
+    this.maxUsers = maxUsers;
+    this.rolePool = new LoopIterator(this.activeRoles);
   }
 
   getLogin(): LoginData {
@@ -114,26 +120,21 @@ export class UserMix {
   }
 
   getCurrentRole(): ROLE {
-    let [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
-    for (
-      let safety = this.rolePool.length - 1;
-      !currentRoleCount && safety;
-      safety--
-    ) {
-      this.currentRoleIndex =
-        (this.currentRoleIndex + 1) % this.rolePool.length;
-      [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
-    }
-    if (currentRoleCount <= 0) this.initializeTracker();
-    [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
+    if (this.isExhausted()) this.initializeTracker();
+    const [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
     this.tracker.set(currentRole, currentRoleCount - 1);
     return currentRole;
   }
 
   getCurrentRoleAndCount(): [ROLE, number] {
-    const role = this.rolePool[this.currentRoleIndex];
+    const role = this.rolePool.next();
     const count = this.tracker.get(role)!;
     return [role, count];
+  }
+
+  isExhausted(): boolean {
+    for (const count of this.tracker.values()) if (count > 0) return false;
+    return true;
   }
 
   initializeTracker(): void {
@@ -143,8 +144,10 @@ export class UserMix {
   }
 
   getTotalUserNumber() {
-    return this.rolePool.reduce((total, role) => {
-      return total + mapRoleToCount(role);
-    }, 0);
+    return this.maxUsers
+      ? this.maxUsers
+      : this.activeRoles.reduce((total, role) => {
+          return total + mapRoleToCount(role);
+        }, 0);
   }
 }

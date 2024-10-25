@@ -1,4 +1,4 @@
-import { UserMix } from "./users";
+import { UserMix } from "./users.ts";
 
 const SPSH_BASE = __ENV["SPSH_BASE"];
 
