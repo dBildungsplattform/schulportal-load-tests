@@ -4,11 +4,11 @@ import {
   getLoginInfo,
   getOrganisationen,
 } from "../util/api.ts";
+import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
 import { goToUserList } from "../util/page.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
-import { getDefaultOptions } from "../util/config.ts";
-import { wrapTestFunction } from "../util/usecase-wrapper";
 
 export const options = {
   ...getDefaultOptions(),

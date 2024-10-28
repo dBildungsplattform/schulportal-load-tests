@@ -6,12 +6,12 @@ import {
   getOrganisationen,
   getPersonen,
   getPersonenIds,
-  getPersonenUebersicht
+  getPersonenUebersicht,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
-import { login } from "../util/page";
-import { wrapTestFunction } from "../util/usecase-wrapper";
+import { login } from "../util/page.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
 
 export const options = {

@@ -1,4 +1,9 @@
 import {
+  DBiamPersonenuebersichtResponse,
+  OrganisationResponse,
+  RolleWithServiceProvidersResponse,
+} from "../api-client/generated/index.ts";
+import {
   getLoginInfo,
   getOrganisationen,
   getPersonenIds,
@@ -9,6 +14,11 @@ import { getFrontendUrl } from "../util/config.ts";
 import { loadPage } from "../util/page.ts";
 import { PageObject } from "./index.ts";
 
+type FetchedData = {
+  organisationen: OrganisationResponse[];
+  personenuebersichten: DBiamPersonenuebersichtResponse[];
+  rollen: RolleWithServiceProvidersResponse[];
+};
 class UserListPage implements PageObject {
   name = "UserList";
   url = `${getFrontendUrl()}admin/personen`;
@@ -19,7 +29,7 @@ class UserListPage implements PageObject {
   }
 
   // fetch on initial load
-  fetchData() {
+  fetchData(): FetchedData {
     getLoginInfo();
     const organisationen = getOrganisationen([
       "limit=25",
@@ -35,11 +45,7 @@ class UserListPage implements PageObject {
     }
 
     const rollen = getRollen(["rolleName="]);
-    return {
-      organisationen,
-      personenuebersichten,
-      rollen,
-    };
+    return { organisationen, personenuebersichten, rollen };
   }
 }
 
