@@ -5,9 +5,10 @@ import {
   getOrganisationen,
 } from "../util/api.ts";
 import { pickRandomItem } from "../util/data.ts";
-import { navigateToUserList } from "../util/page.ts";
+import { goToUserList } from "../util/page.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
 import { getDefaultOptions } from "../util/config.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper";
 
 export const options = {
   ...getDefaultOptions(),
@@ -18,8 +19,10 @@ export const options = {
  */
 const filterInteractionCount = 5;
 
-export default function main(users = getDefaultAdminMix()) {
-  navigateToUserList(users);
+export default wrapTestFunction(main);
+
+function main(users = getDefaultAdminMix()) {
+  goToUserList(users.getLogin());
 
   group("load class list", () => {
     getLoginInfo();

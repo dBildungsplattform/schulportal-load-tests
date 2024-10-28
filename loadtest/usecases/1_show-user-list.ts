@@ -1,4 +1,6 @@
 import { group, sleep } from "k6";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index";
+import { userListPage } from "../pages/user-list";
 import {
   getLoginInfo,
   getOrganisationen,
@@ -8,16 +10,17 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
+import { login } from "../util/page";
 import { getDefaultAdminMix } from "../util/users.ts";
-import { userListPage } from "../pages/user-list";
-import login from "../util/page";
-import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index";
+import { wrapTestFunction } from "../util/usecase-wrapper";
 
 export const options = {
   ...getDefaultOptions(),
 };
 
-export default function main(users = getDefaultAdminMix()) {
+export default wrapTestFunction(main);
+
+function main(users = getDefaultAdminMix()) {
   login(users.getLogin());
   // these are used to test the filters
   let orgId = "";
