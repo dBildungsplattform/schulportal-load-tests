@@ -10,8 +10,8 @@ import {
   getTwoFactorState,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
+import { goToUserList } from "../util/page.ts";
 import { getDefaultUserMix } from "../util/users.ts";
-import goToUserList from "../usecases/1_show-user-list.ts";
 
 const users = getDefaultUserMix();
 
@@ -21,8 +21,7 @@ export const options = {
 
 export default function main() {
   // go to user list
-  // TODO: use PO instead
-  goToUserList(users);
+  goToUserList(users.getLogin());
   // get id
   const viewedPersonId = "";
 

@@ -1,55 +1,43 @@
 import { check } from "k6";
 import http from "k6/http";
-import login from "../usecases/1_login.ts";
-import goToStart from "../usecases/1_show-start.ts";
+import { loginPage } from "../pages/login.ts";
+import { startPage } from "../pages/start.ts";
+import { userListPage } from "../pages/user-list.ts";
 import { getFrontendUrl } from "../util/config.ts";
 import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
-import {
-  getLoginInfo,
-  getOrganisationen,
-  getPersonenIds,
-  getPersonenUebersicht,
-  getRollenAsAdmin,
-  getServiceProviderLogos,
-  getServiceProviders,
-} from "./api.ts";
 import { defaultTimingCheck } from "./checks.ts";
-import { getDefaultAdminMix, UserMix } from "./users.ts";
+import { LoginData } from "./users.ts";
 
 const frontendUrl = getFrontendUrl();
 
-export function goToStartPage() {
+export function goToLandingPage() {
   loadPage(frontendUrl);
 }
 
-export function navigateToHomepage(users: UserMix) {
-  login(users);
-  goToStartPage();
-  getLoginInfo();
-  const providers = getServiceProviders();
-  getServiceProviderLogos(providers);
-  return providers;
+/**
+ * Complete the initial page load, login and navigation to the start page with associated data loading..
+ * @param user user to impersonate during login
+ */
+export function login(user: LoginData) {
+  loginPage.login(user);
+  return startPage.fetchData();
 }
 
-export function navigateToUserList(users = getDefaultAdminMix()) {
-  goToStart(users);
-  getLoginInfo();
-  getOrganisationen([
-    "limit=25",
-    "systemrechte=PERSONEN_VERWALTEN",
-    "excludeTyp=KLASSE",
-  ]);
-
-  for (let i = 0; i < 2; i++) {
-    const personIds = getPersonenIds();
-    getPersonenUebersicht(personIds);
-  }
-
-  getRollenAsAdmin(["rolleName="]);
+/**
+ * Complete login flow and navigation to user list
+ */
+export function goToUserList(user: LoginData) {
+  login(user);
+  userListPage.navigate();
 }
 
-export function loadPage(url: string) {
-  const response = http.get(url);
+/**
+ * Load page and linked resources from given url
+ * @param url of the page to load
+ * @param name optional name for easier filtering in metrics
+ */
+export function loadPage(url: string, name?: string) {
+  const response = http.get(url, { tags: { name: name ?? "Load page" } });
   check(response, {
     "page loaded": () => response.status === 200,
     ...defaultTimingCheck,

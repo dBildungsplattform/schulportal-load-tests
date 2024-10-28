@@ -30,9 +30,17 @@ const backendUrl = getBackendUrl();
 export function makeQueryString(pairs: Array<string>): string {
   return "?".concat(pairs.join("&"));
 }
+/**
+ * Removes querystring from url. Returns unchanged string, if no query is present
+ * @param url url to remove qs from
+ * @returns url without qs
+ */
+export function removeQueryString(url: string): string {
+  return url.split("?")[0];
+}
 
 export function makeHttpRequest(
-  verb: string,
+  verb: "get" | "post",
   resource: string,
   options?: Partial<{
     query: Array<string>;
@@ -45,9 +53,16 @@ export function makeHttpRequest(
   return http.request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
     tags: {
+      name: `${backendUrl}${resource}`,
       resource,
     },
   });
+}
+
+export function getLogin(query: Array<string>) {
+  const response = makeHttpRequest("get", "auth/login", { query });
+  check(response, defaultHttpCheck);
+  return response;
 }
 
 export function getLoginInfo() {

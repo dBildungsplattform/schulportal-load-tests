@@ -15,54 +15,93 @@ export enum ROLE {
   LEIT = "LEIT",
   SYSADMIN = "SYSADMIN",
 }
+export type LoginData = Pick<User, "username" | "password">;
+
+// map a role to an absolute number of users
+function mapRoleToCount(role: ROLE): number {
+  switch (role) {
+    case ROLE.LERN:
+      return 2_000;
+    case ROLE.LEHR:
+      return 500;
+    case ROLE.EXTERN:
+      return 0;
+    case ROLE.ORGADMIN:
+      return 0;
+    case ROLE.LEIT:
+      return 1000;
+    case ROLE.SYSADMIN:
+      return 12;
+  }
+}
 
 type UserRatio = Record<keyof typeof ROLE, number>;
 
-/**
- * Array of usernames and passwords from users.json
- */
-const users = new SharedArray("users", () => {
-  const f = JSON.parse(open(DATAPATH)) as Array<User>;
-  return f;
-});
-
-export function getDefaultAdminMix(): UserMix {
-  return new UserMix({
-    SYSADMIN: 3,
-    LEIT: 250,
-  });
+class LoopIterator<T> {
+  readPosition = 0;
+  constructor(public backingArray: Array<T>) {}
+  next(): T {
+    this.readPosition = ++this.readPosition % this.backingArray.length;
+    return this.backingArray[this.readPosition];
+  }
 }
 
-export function getDefaultUserMix(): UserMix {
-  return new UserMix({
-    SYSADMIN: 3,
-    LEIT: 250,
-    LEHR: 1000,
-    LERN: 24000,
-  });
+/**
+ * Map of roles to looping iterators of usernames and passwords from users.json
+ */
+const groupedUsers = new Map<ROLE, LoopIterator<User>>();
+const users = JSON.parse(open(DATAPATH)) as Array<User>;
+for (const [key, role] of Object.entries(ROLE)) {
+  const backingArray = new SharedArray(key, () =>
+    users.filter((user: User) => user.role == role),
+  );
+  const iterator = new LoopIterator<User>(backingArray);
+  groupedUsers.set(role, iterator);
+}
+
+export function getDefaultAdminMix(maxUsers?: number): UserMix {
+  return new UserMix(
+    {
+      SYSADMIN: mapRoleToCount(ROLE.SYSADMIN),
+      LEIT: mapRoleToCount(ROLE.LEIT),
+    },
+    maxUsers,
+  );
+}
+
+export function getDefaultUserMix(maxUsers?: number): UserMix {
+  return new UserMix(
+    {
+      LEHR: mapRoleToCount(ROLE.LEHR),
+      LERN: mapRoleToCount(ROLE.LERN),
+    },
+    maxUsers,
+  );
 }
 
 export class UserMix {
-  rolePool: Array<ROLE>;
-  currentRoleIndex: number;
+  activeRoles: Array<ROLE>;
+  rolePool: LoopIterator<ROLE>;
   tracker: Map<ROLE, number>;
   initialTracker: typeof this.tracker;
+  maxUsers?: number;
 
-  constructor(ratio: Partial<UserRatio>) {
-    this.currentRoleIndex = 0;
-    this.rolePool = [];
+  constructor(ratio: Partial<UserRatio>, maxUsers?: number) {
+    this.activeRoles = [];
     this.tracker = new Map();
     this.initialTracker = new Map();
     for (const role of Object.values(ROLE)) {
       if (ratio[role]) {
-        this.rolePool.push(role);
+        this.activeRoles.push(role);
         this.initialTracker.set(role, ratio[role]);
       }
     }
     this.initializeTracker();
+    this.maxUsers = maxUsers;
+    this.rolePool = new LoopIterator(this.activeRoles);
   }
 
-  getLogin(): Pick<User, "username" | "password"> {
+  getLogin(): LoginData {
     const user = this.getUser();
     return {
       username: user.username,
@@ -72,40 +111,43 @@ export class UserMix {
 
   getUser(): User {
     const currentRole = this.getCurrentRole();
-    const user = users.find((user) => user.role == currentRole);
+    const user = groupedUsers.get(currentRole);
     if (!user)
       throw new Error(
         `user with requested role ${currentRole} is not present in ${DATAPATH}`,
       );
-    return user;
+    return user.next();
   }
 
   getCurrentRole(): ROLE {
-    let [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
-    for (
-      let safety = this.rolePool.length - 1;
-      !currentRoleCount && safety;
-      safety--
-    ) {
-      this.currentRoleIndex =
-        (this.currentRoleIndex + 1) % this.rolePool.length;
-      [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
-    }
-    if (!currentRoleCount) this.initializeTracker();
-    [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
+    if (this.isExhausted()) this.initializeTracker();
+    const [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
     this.tracker.set(currentRole, currentRoleCount - 1);
     return currentRole;
   }
 
   getCurrentRoleAndCount(): [ROLE, number] {
-    const role = this.rolePool[this.currentRoleIndex];
+    const role = this.rolePool.next();
     const count = this.tracker.get(role)!;
     return [role, count];
+  }
+
+  isExhausted(): boolean {
+    for (const count of this.tracker.values()) if (count > 0) return false;
+    return true;
   }
 
   initializeTracker(): void {
     for (const [key, value] of this.initialTracker) {
       this.tracker.set(key, value);
     }
+  }
+
+  getTotalUserNumber() {
+    return this.maxUsers
+      ? this.maxUsers
+      : this.activeRoles.reduce((total, role) => {
+          return total + mapRoleToCount(role);
+        }, 0);
   }
 }
