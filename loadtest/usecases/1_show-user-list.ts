@@ -1,6 +1,6 @@
 import { group, sleep } from "k6";
 import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
-import { userListPage } from "../pages/user-list";
+import { userListPage } from "../pages/user-list.ts";
 import {
   getLoginInfo,
   getOrganisationen,
