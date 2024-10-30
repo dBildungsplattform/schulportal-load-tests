@@ -6,6 +6,7 @@ import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
 import { loadPage } from "../util/page.ts";
 import { LoginData } from "../util/users.ts";
 import { PageObject } from "./index.ts";
+import { prettyLog } from "../util/debug.ts";
 
 class LoginPage implements PageObject {
   name = "Login";
@@ -22,11 +23,18 @@ class LoginPage implements PageObject {
    */
   login(user: LoginData) {
     group("login", () => {
-      this.navigate();
-      let response = this.goToKeycloakLogin();
-      response = this.submitForm(response, user);
-      response = this.complete(response);
-      if (response.status !== 200 && response.status !== 302) {
+      let response;
+      try {
+        this.navigate();
+        response = this.goToKeycloakLogin();
+        response = this.submitForm(response, user);
+        response = this.complete(response);
+        if (response.status !== 200 && response.status !== 302) {
+          fail("login failed");
+        }
+      } catch (error) {
+        prettyLog(error, "LOGIN ERROR");
+        prettyLog(response, "RESPONSE");
         fail("login failed");
       }
     });
