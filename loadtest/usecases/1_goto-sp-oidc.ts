@@ -1,5 +1,6 @@
-import { fail, sleep } from "k6";
+import { check, fail, sleep } from "k6";
 import { getDefaultOptions } from "../util/config.ts";
+import { prettyLog } from "../util/debug.ts";
 import { loadPage, login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { UserMix } from "../util/users.ts";
@@ -16,6 +17,24 @@ function main(users = new UserMix({ LEHR: 1 })) {
   const { providers } = login(users.getLogin());
   const target = providers.find((p) => p.name == serviceProviderName);
   if (!target) fail(`could not find sp ${serviceProviderName}`);
-  loadPage(target.url);
+  const response = loadPage(target.url);
+  check(response, {
+    "arrived at ox": (r) => {
+      try {
+        return r.url.includes("ox");
+      } catch (error) {
+        prettyLog(error);
+        return false;
+      }
+    },
+    "did not end at kc": (r) => {
+      try {
+        return !(r.url.includes("keycloak") || r.url.includes("auth"));
+      } catch (error) {
+        prettyLog(error);
+        return false;
+      }
+    },
+  });
   sleep(1);
 }
