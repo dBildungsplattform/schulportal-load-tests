@@ -38,7 +38,7 @@ import { prettyLog } from "./debug.ts";
 const backendUrl = getBackendUrl();
 
 export function makeQueryString(pairs: Array<string>): string {
-  return "?".concat(pairs.join("&"));
+  return "?".concat(pairs.map((p) => p.replace(" ", "%20")).join("&"));
 }
 /**
  * Removes querystring from url. Returns unchanged string, if no query is present
