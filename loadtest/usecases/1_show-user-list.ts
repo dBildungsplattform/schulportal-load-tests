@@ -1,6 +1,6 @@
 import { group, sleep } from "k6";
-import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index";
-import { userListPage } from "../pages/user-list";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
+import { userListPage } from "../pages/user-list.ts";
 import {
   getLoginInfo,
   getOrganisationen,
@@ -10,9 +10,9 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
-import { login } from "../util/page";
+import { login } from "../util/page.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
-import { wrapTestFunction } from "../util/usecase-wrapper";
 
 export const options = {
   ...getDefaultOptions(),
@@ -101,8 +101,6 @@ function main(users = getDefaultAdminMix()) {
       }
     });
   });
-
-  sleep(1);
 }
 
 function emulateFilterReset() {
