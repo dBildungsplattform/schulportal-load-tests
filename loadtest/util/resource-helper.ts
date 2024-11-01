@@ -116,7 +116,7 @@ export function deleteTestUsers(ids: Array<string>) {
 
 export function deleteAllTestUsers() {
   let users = getPersonen(["offset=0", "limit=100", "suchFilter=PLT-"]);
-  console.log("deleting test users");
+  console.log(`deleting ${users.total} test users`);
   while (users.total) {
     deleteTestUsers(users.items.map((p) => p.person.id));
     users = getPersonen(["offset=0", "limit=100", "suchFilter=PLT-"]);

@@ -1,6 +1,9 @@
 import { group, sleep } from "k6";
 import { logout } from "../pages/index.ts";
+import { UserDetailsPage } from "../pages/user-details.ts";
+import { userListPage } from "../pages/user-list.ts";
 import {
+  deletePersonById,
   getAdministeredOrganisationenById,
   getLoginInfo,
   getPersonenkontextWorkflowStep,
@@ -8,6 +11,7 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { getRandomName, pickRandomItem } from "../util/data.ts";
+import { prettyLog } from "../util/debug.ts";
 import { goToUserList, login } from "../util/page.ts";
 import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
@@ -33,7 +37,7 @@ function main(users = getDefaultAdminMix()) {
     getLoginInfo();
   });
 
-  group("go through workflow", () => {
+  const createdPerson = group("go through creation workflow", () => {
     const { organisations } = getPersonenkontextWorkflowStep(["limit=25"]);
     const organisation = pickRandomItem(organisations);
     typeIntoAutocomplete(organisation.name, (name) => {
@@ -88,7 +92,16 @@ function main(users = getDefaultAdminMix()) {
     } else {
       body.personalnummer = "1237562";
     }
-    postPersonenkontextWorkflow(body);
+    return postPersonenkontextWorkflow(body);
+  });
+
+  group("navigate back", () => {
+    userListPage.navigate();
+    new UserDetailsPage(createdPerson.person.id).navigate();
+  });
+
+  group("go through deletion workflow", () => {
+    deletePersonById(createdPerson.person.id);
   });
 }
 
