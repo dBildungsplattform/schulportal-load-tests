@@ -277,16 +277,17 @@ export function resetPassword(personId: string) {
 export function putPersonLock(personId: string, lock: boolean) {
   const lockUserBodyParams: LockUserBodyParams = {
     lock,
-    lockedFrom: "PLT",
+    //@ts-expect-error openapi generator converts this to camelcase
+    locked_by: "PLT",
   };
   const params = {
     headers: { "Content-Type": "application/json" },
   };
   const body = JSON.stringify(lockUserBodyParams);
   const response = put(
-    `${backendUrl}person/${personId}/lock-user`,
+    `${backendUrl}personen/${personId}/lock-user`,
     body,
     params,
   );
-  return response.json() as unknown as PersonLockResponse;
+  return response;
 }
