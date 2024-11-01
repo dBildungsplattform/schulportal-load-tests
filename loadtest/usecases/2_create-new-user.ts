@@ -7,16 +7,18 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { getRandomName, pickRandomItem } from "../util/data.ts";
-import { prettyLog } from "../util/debug.ts";
-import { navigateToUserList } from "../util/page.ts";
+import { goToUserList } from "../util/page.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
 };
 
-export default function main(users = getDefaultAdminMix()) {
-  navigateToUserList(users);
+export default wrapTestFunction(main);
+
+function main(users = getDefaultAdminMix()) {
+  goToUserList(users.getLogin());
 
   group("load page", () => {
     getLoginInfo();

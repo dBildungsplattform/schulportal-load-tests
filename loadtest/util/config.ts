@@ -1,3 +1,5 @@
+import { UserMix } from "./users.ts";
+
 const SPSH_BASE = __ENV["SPSH_BASE"];
 
 export enum CONFIG {
@@ -15,27 +17,34 @@ export function getConfig(): CONFIG {
   throw Error(`Invalid value for config '${config}'`);
 }
 
-export function getDefaultOptions() {
+export function getDefaultOptions(users?: UserMix) {
   const config = getConfig();
+  // Use this for real setup only; Traffic will be high
+  //const maxVUs = users ? users.getTotalUserNumber() : 100;
+  const maxVUs = 10;
   switch (config) {
     case CONFIG.SPIKE:
       return {
         stages: [
-          { duration: "30s", target: 10 },
-          { duration: "10s", target: 0 },
+          { duration: "30s", target: maxVUs }, // ramp up
+          { duration: "30s", target: maxVUs }, // hold
+          { duration: "10s", target: 0 }, // ramp down
         ],
       };
     case CONFIG.STRESS:
       return {
         stages: [
-          { duration: "1m", target: 10 },
-          // { duration: "5m", target: 100 },
-          { duration: "1m", target: 0 },
+          { duration: "1m", target: Math.round(maxVUs * 0.5) }, // ramp up 1
+          { duration: "1m", target: Math.round(maxVUs * 0.8) }, // ramp up 2
+          { duration: "1m", target: maxVUs }, // ramp up 3
+          { duration: "1m", target: Math.round(maxVUs * 0.8) }, // ramp down 1
+          { duration: "1m", target: Math.round(maxVUs * 0.5) }, // ramp down 2
+          { duration: "1m", target: 0 }, // ramp down 3
         ],
       };
     case CONFIG.BREAKPOINT:
       return {
-        stages: [{ duration: "5m", target: 10 }],
+        stages: [{ duration: "10m", target: 10 * maxVUs }],
         thresholds: {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
           http_req_duration: [{ threshold: "p(95)<2000", abortOnFail: true }],
@@ -43,7 +52,7 @@ export function getDefaultOptions() {
       };
     case CONFIG.DEBUG:
       return {
-        stages: [{ duration: "1s", target: 1 }],
+        stages: [{ duration: "1m", target: 50 }],
       };
   }
 }

@@ -1,46 +1,39 @@
 import { group, sleep } from "k6";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
+import { userListPage } from "../pages/user-list.ts";
 import {
   getLoginInfo,
   getOrganisationen,
   getPersonen,
   getPersonenIds,
   getPersonenUebersicht,
-  getRollen,
-  PersonenUebersicht,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
+import { login } from "../util/page.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
-import goToStart from "./1_show-start.ts";
 
 export const options = {
   ...getDefaultOptions(),
 };
 
-export default function main(users = getDefaultAdminMix()) {
-  goToStart(users);
+export default wrapTestFunction(main);
 
+function main(users = getDefaultAdminMix()) {
+  login(users.getLogin());
   // these are used to test the filters
   let orgId = "";
   let rolleId = "";
-  let personenuebersicht: PersonenUebersicht | undefined = undefined;
+  let personenuebersicht: DBiamPersonenuebersichtResponse | undefined =
+    undefined;
 
   group("load user page", () => {
+    const { organisationen, personenuebersichten, rollen } =
+      userListPage.fetchData();
     getLoginInfo();
-    const organisationen = getOrganisationen([
-      "limit=25",
-      "systemrechte=PERSONEN_VERWALTEN",
-      "excludeTyp=KLASSE",
-    ]);
     orgId = pickRandomItem(organisationen).id;
-
-    for (let i = 0; i < 2; i++) {
-      const personIds = getPersonenIds();
-      const personenuebersichten = getPersonenUebersicht(personIds);
-      personenuebersicht = pickRandomItem(personenuebersichten);
-    }
-
-    const rollen = getRollen(["rolleName="]);
+    personenuebersicht = pickRandomItem(personenuebersichten);
     rolleId = pickRandomItem(rollen).id;
   });
 
@@ -108,8 +101,6 @@ export default function main(users = getDefaultAdminMix()) {
       }
     });
   });
-
-  sleep(1);
 }
 
 function emulateFilterReset() {

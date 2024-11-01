@@ -1,69 +1,61 @@
-import { check, fail, group, sleep } from "k6";
-import http from "k6/http";
+import { check, group } from "k6";
+import { RefinedResponse, ResponseType } from "k6/http";
+import { Counter, Trend } from "k6/metrics";
+import { loginPage } from "../pages/login.ts";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
-import { getDefaultOptions, getFrontendUrl } from "../util/config.ts";
-import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
-import { goToStartPage } from "../util/page.ts";
+import { getDefaultOptions } from "../util/config.ts";
+import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
-const SPSH_BASE = getFrontendUrl();
-// not needed yet
-// const KC_BASE = __ENV["KC_BASE"];
+const successfulLoginCounter = new Counter("successful_logins_counter");
+const successfulLoginDuration = new Trend("successful_logins_duration", true);
+const users = getDefaultUserMix();
 
 export const options = {
-  ...getDefaultOptions(),
+  ...getDefaultOptions(users),
 };
 
-export default function main(users = getDefaultUserMix()) {
+export default wrapTestFunction(main);
+
+function main() {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
    */
-  let loginUrl = "";
+  let keycloakFormResponse: RefinedResponse<ResponseType | undefined>;
+  let loginPageResponse: RefinedResponse<ResponseType | undefined>;
 
-  goToStartPage();
+  const startTime = new Date();
 
-  group("go to kc login and submit form", () => {
-    // load page
-    const loginPageResponse = http.get(
-      SPSH_BASE + "api/auth/login?redirectUrl=/",
-    );
+  group("go to kc login", () => {
+    loginPage.navigate();
+    loginPageResponse = loginPage.goToKeycloakLogin();
     check(loginPageResponse, defaultHttpCheck);
-    loadLinkedResourcesAndCheck(loginPageResponse);
+  });
 
+  group("submit form", () => {
     // submit form
-    const doc = loginPageResponse.html();
-    const actionUrl = doc.find("#kc-form-login").attr("action");
-    if (!actionUrl) fail("action for #kc-form-login was not found");
-
     const user = users.getLogin();
-    const loginData = {
-      ...user,
-      credentialId: "",
-    };
-    const loginResponse = http.post(actionUrl, loginData, { redirects: 0 });
-    check(loginResponse, {
+    keycloakFormResponse = loginPage.submitForm(loginPageResponse, user);
+    check(keycloakFormResponse, {
       "submitting login form to kc succeeded": () =>
-        loginResponse.status === 302,
+        keycloakFormResponse.status === 302,
       ...defaultTimingCheck,
     });
-
-    // retrieve the loginUrl from the response
-    // this includes state, session_state, iss and security code
-    loginUrl = loginResponse.headers["Location"];
-    if (!loginUrl) {
-      fail("did not find Location in kc response");
-    }
   });
 
   group("finish login", () => {
-    const response = http.get(loginUrl);
-    check(response, {
+    const response = loginPage.complete(keycloakFormResponse);
+    const loginSucceeded = check(response, {
       "login succeeded": () =>
         response.status === 200 || response.status === 302,
+    });
+    check(response, {
       ...defaultTimingCheck,
     });
-    loadLinkedResourcesAndCheck(response);
+    const endTime = new Date();
+    if (loginSucceeded) {
+      successfulLoginCounter.add(1);
+      successfulLoginDuration.add(endTime.valueOf() - startTime.valueOf());
+    }
   });
-
-  sleep(1);
 }
