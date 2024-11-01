@@ -7,11 +7,14 @@ const abortedCounter = new Counter("usecases_aborted");
 const completedDuration = new Trend("usecases_completed_duration", true);
 const abortedDuration = new Trend("usecases_aborted_duration", true);
 
-export function wrapTestFunction(testFunction: () => void): () => void {
-  return () => {
+type TestFunction<T> = (data: T) => void;
+export function wrapTestFunction<T>(
+  testFunction: TestFunction<T>,
+): TestFunction<T> {
+  return (data: T) => {
     const start = Date.now();
     try {
-      testFunction();
+      testFunction(data);
       completedCounter.add(1);
       completedDuration.add(Date.now() - start);
     } catch (error: unknown) {

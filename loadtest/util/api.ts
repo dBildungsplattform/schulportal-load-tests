@@ -1,17 +1,27 @@
 import { check, fail } from "k6";
-import http, { RefinedParams, RequestBody, ResponseType } from "k6/http";
+import {
+  get,
+  patch,
+  put,
+  RefinedParams,
+  request,
+  RequestBody,
+  ResponseType,
+  url,
+} from "k6/http";
 import {
   DbiamCreatePersonWithPersonenkontexteBodyParams,
   DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
   DBiamPersonenuebersichtResponse,
   DBiamPersonResponse,
   FindRollenResponse,
+  LockUserBodyParams,
   OrganisationResponse,
   ParentOrganisationenResponse,
   PersonendatensatzResponse,
   PersonenkontextWorkflowResponse,
   PersonFrontendControllerFindPersons200Response,
-  RolleWithServiceProvidersResponse,
+  PersonLockResponse,
   ServiceProviderResponse,
   TokenRequiredResponse,
   TokenStateResponse,
@@ -40,7 +50,7 @@ export function removeQueryString(url: string): string {
 }
 
 export function makeHttpRequest(
-  verb: "get" | "post",
+  verb: "get" | "post" | "put" | "delete",
   resource: string,
   options?: Partial<{
     query: Array<string>;
@@ -50,17 +60,25 @@ export function makeHttpRequest(
 ) {
   const queryString = options?.query ? makeQueryString(options.query) : "";
   const url = `${backendUrl}${resource}${queryString}`;
-  return http.request(verb.toUpperCase(), url, options?.body, {
+  const response = request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
     tags: {
       name: `${backendUrl}${resource}`,
       resource,
     },
   });
+  if (response.error_code) prettyLog(response, "HTTP ERROR");
+  return response;
 }
 
 export function getLogin(query: Array<string>) {
   const response = makeHttpRequest("get", "auth/login", { query });
+  check(response, defaultHttpCheck);
+  return response;
+}
+
+export function getLogout() {
+  const response = makeHttpRequest("get", "auth/logout");
   check(response, defaultHttpCheck);
   return response;
 }
@@ -85,10 +103,9 @@ export function getServiceProviders() {
 export function getServiceProviderLogos(providers: Array<{ id: string }>) {
   try {
     for (const provider of providers) {
-      const logoResponse = http.get(
-        http.url`${backendUrl}provider/${provider.id}/logo`,
-        { tags: { resource: "provider/${id}/logo" } },
-      );
+      const logoResponse = get(url`${backendUrl}provider/${provider.id}/logo`, {
+        tags: { resource: "provider/${id}/logo" },
+      });
       check(logoResponse, {
         "got provider logos": (r) => r.status === 200,
         ...defaultTimingCheck,
@@ -111,8 +128,8 @@ export function getAdministeredOrganisationenById(
   query?: Array<string>,
 ) {
   const queryString = query ? makeQueryString(query) : "";
-  const response = http.get(
-    http.url`${backendUrl}organisationen/${id}/administriert${queryString}`,
+  const response = get(
+    url`${backendUrl}organisationen/${id}/administriert${queryString}`,
     { tags: { resource: "organisationen/${id}/administriert" } },
   );
   check(response, defaultHttpCheck);
@@ -131,7 +148,7 @@ export function getParentOrganisationenByIds(organisationIds: Array<string>) {
     params,
   });
   check(response, {
-    "got 201": getStatusChecker(201),
+    "got expected status": getStatusChecker([200, 201]),
     ...defaultTimingCheck,
   });
   return response.json() as unknown as ParentOrganisationenResponse;
@@ -146,7 +163,9 @@ export function getPersonenIds(
 
 export function getPersonen(query?: Array<string>) {
   const response = makeHttpRequest("get", "personen-frontend", { query });
-  check(response, defaultHttpCheck);
+  const result = check(response, defaultHttpCheck);
+  if (!result) prettyLog(response);
+
   return response.json() as unknown as PersonFrontendControllerFindPersons200Response;
 }
 
@@ -154,6 +173,12 @@ export function getPersonById(id: string, query?: Array<string>) {
   const response = makeHttpRequest("get", `personen/${id}`, { query });
   check(response, defaultHttpCheck);
   return response.json() as unknown as PersonendatensatzResponse;
+}
+
+export function deletePersonById(id: string) {
+  const response = makeHttpRequest("delete", `personen/${id}`);
+  check(response, defaultHttpCheck);
+  return response;
 }
 
 export function getPersonenUebersicht(personIds: Set<string>) {
@@ -200,7 +225,7 @@ export function getRollen(query: Array<string>) {
     query,
   });
   check(response, defaultHttpCheck);
-  return response.json() as unknown as Array<RolleWithServiceProvidersResponse>;
+  return response.json() as unknown as FindRollenResponse;
 }
 
 export function getPersonenkontextWorkflowStep(query?: Array<string>) {
@@ -242,4 +267,26 @@ export function getTwoFactorState(query: Array<string>) {
   });
   check(response, defaultHttpCheck);
   return response.json() as unknown as TokenStateResponse;
+}
+
+export function resetPassword(personId: string) {
+  const response = patch(url`${backendUrl}personen/${personId}/password`);
+  return response;
+}
+
+export function putPersonLock(personId: string, lock: boolean) {
+  const lockUserBodyParams: LockUserBodyParams = {
+    lock,
+    lockedFrom: "PLT",
+  };
+  const params = {
+    headers: { "Content-Type": "application/json" },
+  };
+  const body = JSON.stringify(lockUserBodyParams);
+  const response = put(
+    `${backendUrl}person/${personId}/lock-user`,
+    body,
+    params,
+  );
+  return response.json() as unknown as PersonLockResponse;
 }
