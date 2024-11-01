@@ -1,4 +1,5 @@
 import { group, sleep } from "k6";
+import { logout } from "../pages/index.ts";
 import {
   getAdministeredOrganisationenById,
   getLoginInfo,
@@ -7,13 +8,21 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { getRandomName, pickRandomItem } from "../util/data.ts";
-import { goToUserList } from "../util/page.ts";
+import { goToUserList, login } from "../util/page.ts";
+import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultAdminMix } from "../util/users.ts";
+import { getDefaultAdminMix, UserMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
 };
+
+export function teardown() {
+  const admin = new UserMix({ SYSADMIN: 1 });
+  login(admin.getLogin());
+  deleteAllTestUsers();
+  logout();
+}
 
 export default wrapTestFunction(main);
 
