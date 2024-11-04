@@ -8,6 +8,7 @@ import {
   RollenArt,
 } from "../api-client/generated/index.ts";
 import {
+  getAdministeredOrganisationenById,
   getOrganisationen,
   getPersonen,
   getRollen,
@@ -71,7 +72,7 @@ export function createTestUsers(n: number): Array<string> {
   }
 }
 
-function createAndFindTestOrg() {
+export function createAndFindTestOrg() {
   let organisation = findTestOrg();
   if (!organisation) createTestOrganisation();
   organisation = findTestOrg();
@@ -120,5 +121,29 @@ export function deleteAllTestUsers() {
   while (users.total) {
     deleteTestUsers(users.items.map((p) => p.person.id));
     users = getPersonen(["offset=0", "limit=100", "suchFilter=PLT-"]);
+  }
+}
+
+export function deleteAllTestKlassen() {
+  const org = createAndFindTestOrg();
+  const query = ["offset=0", "limit=100"];
+  let klassen = getAdministeredOrganisationenById(org.id, query);
+  console.log(`deleting ${klassen.length} test klassen`);
+  while (klassen.length) {
+    deleteTestKlassen(klassen.map((p) => p.id));
+    klassen = getAdministeredOrganisationenById(org.id, query);
+  }
+}
+
+function deleteTestKlassen(ids: Array<string>) {
+  try {
+    batch(
+      ids.map((id) => ({
+        method: "DELETE",
+        url: `${getBackendUrl()}organisationen/${id}/klasse`,
+      })),
+    );
+  } catch {
+    fail("teardown: deleting klassen failed");
   }
 }

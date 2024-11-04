@@ -23,7 +23,7 @@ function mapNumberIntoAlphabet(n: number): string {
   return s;
 }
 
-function getRandomString(length: number) {
+export function getRandomString(length: number) {
   let s = "";
   while (length--) {
     const n = Math.floor(Math.random() * 26);

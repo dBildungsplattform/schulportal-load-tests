@@ -1,6 +1,7 @@
 import { check, fail } from "k6";
 
 import {
+  del,
   get,
   patch,
   put,
@@ -11,6 +12,7 @@ import {
   url,
 } from "k6/http";
 import {
+  CreateOrganisationBodyParams,
   DbiamCreatePersonWithPersonenkontexteBodyParams,
   DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
   DBiamPersonenuebersichtResponse,
@@ -157,6 +159,25 @@ export function getParentOrganisationenByIds(organisationIds: Array<string>) {
     ...defaultTimingCheck,
   });
   return response.json() as unknown as ParentOrganisationenResponse;
+}
+
+export function postOrganisationen(bodyParams: CreateOrganisationBodyParams) {
+  const body = JSON.stringify(bodyParams);
+  const params = {
+    headers: { "Content-Type": "application/json" },
+  };
+  const response = makeHttpRequest("post", "organisationen", {
+    body,
+    params,
+  });
+  return response;
+}
+
+export function deleteKlasse(id: string) {
+  const response = del(url`${backendUrl}/organisationen/${id}/klasse`, null, {
+    tags: { resource: "organisationen/${id}/klasse" },
+  });
+  return response;
 }
 
 export function getPersonenIds(
