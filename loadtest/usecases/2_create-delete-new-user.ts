@@ -11,7 +11,6 @@ import {
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { getRandomName, pickRandomItem } from "../util/data.ts";
-import { prettyLog } from "../util/debug.ts";
 import { goToUserList, login } from "../util/page.ts";
 import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";

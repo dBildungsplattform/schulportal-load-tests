@@ -101,8 +101,6 @@ function main(users = getDefaultAdminMix()) {
       }
     });
   });
-
-  sleep(1);
 }
 
 function emulateFilterReset() {

@@ -1,4 +1,4 @@
-import { check, fail, group, sleep } from "k6";
+import { check, fail, group } from "k6";
 import { getDefaultOptions } from "../util/config.ts";
 import { prettyLog } from "../util/debug.ts";
 import { loadPage, login } from "../util/page.ts";

@@ -1,7 +1,6 @@
 import { check, fail, group } from "k6";
 import { get } from "k6/http";
 import { getDefaultOptions } from "../util/config.ts";
-import { prettyLog } from "../util/debug.ts";
 import { loadPage, login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultAdminMix } from "../util/users.ts";
