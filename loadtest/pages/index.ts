@@ -1,6 +1,4 @@
-import { get } from "k6/http";
-import { getLogout, removeQueryString } from "../util/api.ts";
-import { prettyLog } from "../util/debug.ts";
+import { getLogout } from "../util/api.ts";
 
 export interface PageObject {
   name: string;

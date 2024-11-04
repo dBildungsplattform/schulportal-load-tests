@@ -22,6 +22,7 @@ import {
   PersonendatensatzResponse,
   PersonenkontextWorkflowResponse,
   PersonFrontendControllerFindPersons200Response,
+  PersonInfoResponse,
   ServiceProviderResponse,
   TokenRequiredResponse,
   TokenStateResponse,
@@ -37,8 +38,12 @@ import { prettyLog } from "./debug.ts";
 
 const backendUrl = getBackendUrl();
 
+function urlEncode(s: string): string {
+  return s.replaceAll(" ", "%20").replaceAll("/", "%2F").replaceAll(":", "%3A");
+}
+
 export function makeQueryString(pairs: Array<string>): string {
-  return "?".concat(pairs.map((p) => p.replaceAll(" ", "%20")).join("&"));
+  return "?".concat(pairs.map(urlEncode).join("&"));
 }
 /**
  * Removes querystring from url. Returns unchanged string, if no query is present
@@ -175,6 +180,12 @@ export function getPersonById(id: string, query?: Array<string>) {
   return response.json() as unknown as PersonendatensatzResponse;
 }
 
+export function getPersonInfo(query?: Array<string>) {
+  const response = makeHttpRequest("get", `person-info`, { query });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as PersonInfoResponse;
+}
+
 export function deletePersonById(id: string) {
   const response = makeHttpRequest("delete", `personen/${id}`);
   check(response, {
@@ -274,6 +285,11 @@ export function getTwoFactorState(query: Array<string>) {
 
 export function resetPassword(personId: string) {
   const response = patch(url`${backendUrl}personen/${personId}/password`);
+  return response;
+}
+
+export function getResetPassword(query: Array<string>) {
+  const response = makeHttpRequest("get", "auth/reset-password", { query });
   return response;
 }
 
