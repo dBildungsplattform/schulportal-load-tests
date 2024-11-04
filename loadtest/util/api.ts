@@ -36,16 +36,13 @@ import {
   getStatusChecker,
 } from "./checks.ts";
 import { getBackendUrl } from "./config.ts";
+import { NAME_PREFIX } from "./data.ts";
 import { prettyLog } from "./debug.ts";
 
 const backendUrl = getBackendUrl();
 
-function urlEncode(s: string): string {
-  return s.replaceAll(" ", "%20").replaceAll("/", "%2F").replaceAll(":", "%3A");
-}
-
 export function makeQueryString(pairs: Array<string>): string {
-  return "?".concat(pairs.map(urlEncode).join("&"));
+  return "?".concat(pairs.map(encodeURI).join("&"));
 }
 /**
  * Removes querystring from url. Returns unchanged string, if no query is present
@@ -318,7 +315,7 @@ export function putPersonLock(personId: string, lock: boolean) {
   const lockUserBodyParams: LockUserBodyParams = {
     lock,
     //@ts-expect-error openapi generator converts this to camelcase
-    locked_by: "PLT",
+    locked_by: NAME_PREFIX,
   };
   const params = {
     headers: { "Content-Type": "application/json" },

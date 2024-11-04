@@ -15,11 +15,11 @@ import {
   makeHttpRequest,
 } from "./api.ts";
 import { getBackendUrl } from "./config.ts";
-import { getRandomName } from "./data.ts";
+import { getRandomName, NAME_PREFIX } from "./data.ts";
 import { prettyLog } from "./debug.ts";
 
 const orgParams: CreateOrganisationBodyParams = {
-  name: "LP-Test-Schule",
+  name: `${NAME_PREFIX}-Test-Schule`,
   kennung: "1234567",
   typ: OrganisationsTyp.Schule,
 };
@@ -116,11 +116,12 @@ export function deleteTestUsers(ids: Array<string>) {
 }
 
 export function deleteAllTestUsers() {
-  let users = getPersonen(["offset=0", "limit=100", "suchFilter=PLT-"]);
+  const query = ["offset=0", "limit=100", `suchFilter=${NAME_PREFIX}-`];
+  let users = getPersonen(query);
   console.log(`deleting ${users.total} test users`);
   while (users.total) {
     deleteTestUsers(users.items.map((p) => p.person.id));
-    users = getPersonen(["offset=0", "limit=100", "suchFilter=PLT-"]);
+    users = getPersonen(query);
   }
 }
 

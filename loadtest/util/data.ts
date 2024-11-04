@@ -1,5 +1,7 @@
 import { vu } from "k6/execution";
 
+export const NAME_PREFIX = "PLT";
+
 export function pickRandomItem<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];
 }
@@ -40,7 +42,7 @@ export function getRandomName(): {
   const vuId = mapNumberIntoAlphabet(vu.idInTest);
   const iteration = mapNumberIntoAlphabet(vu.iterationInScenario);
   const random = getRandomString(8);
-  const s = `PLT-${vuId}-${iteration}-${random}`;
+  const s = [NAME_PREFIX, vuId, iteration, random].join("-");
   return {
     familienname: s,
     vorname: s,

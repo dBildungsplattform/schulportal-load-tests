@@ -8,9 +8,5 @@ export interface PageObject {
 
 export function logout() {
   const res = getLogout();
-  // const location = res.headers["Location"];
-  // get(location, {
-  //   tags: { name: removeQueryString(location) },
-  // });
   return res;
 }
