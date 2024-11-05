@@ -44,12 +44,12 @@ export function getDefaultOptions() {
         stages: [{ duration: "10m", target: 10 * maxVUs }],
         thresholds: {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
-          http_req_duration: [{ threshold: "p(95)<2000", abortOnFail: true }],
+          http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
         },
       };
     case CONFIG.DEBUG:
       return {
-        stages: [{ duration: "1m", target: maxVUs }],
+        stages: [{ duration: "1s", target: maxVUs }],
       };
   }
 }

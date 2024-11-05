@@ -4,6 +4,7 @@ import { Counter, Trend } from "k6/metrics";
 import { loginPage } from "../pages/login.ts";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions } from "../util/config.ts";
+import { prettyLog } from "../util/debug.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
@@ -12,7 +13,7 @@ const successfulLoginDuration = new Trend("successful_logins_duration", true);
 const users = getDefaultUserMix();
 
 export const options = {
-  ...getDefaultOptions(users),
+  ...getDefaultOptions(),
 };
 
 export default wrapTestFunction(main);
@@ -41,6 +42,7 @@ function main() {
         keycloakFormResponse.status === 302,
       ...defaultTimingCheck,
     });
+    prettyLog(keycloakFormResponse);
   });
 
   group("finish login", () => {
