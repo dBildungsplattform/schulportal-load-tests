@@ -1,31 +1,31 @@
 ---
-name: Trigger Loadtest 
+name: Trigger Loadtest
 
 on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to take tests and helm/cron setup  from'
+        description: "Branch to take tests and helm/cron setup  from"
         required: false
         type: string
         default: main
       pattern:
-        description: 'sets PATTERN env var used as k6 input'
+        description: "sets PATTERN env var used as k6 input"
         required: false
         type: string
         default: "login"
       config:
-        description: 'sets CONFIG env var used as k6 input'
+        description: "sets CONFIG env var used as k6 input"
         required: false
         type: string
         default: "debug"
       max_vus:
-        description: 'sets the maximum number of virtual users'
+        description: "sets the maximum number of virtual users"
         required: false
         type: string
         default: "10"
       scenario:
-        description: 'name of test scenario defined in values.yaml'
+        description: "name of test scenario defined in values.yaml"
         type: string
         required: true
         default: dev-scenario
@@ -43,13 +43,11 @@ jobs:
       contents: read
     uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
     with:
-      branch: ${{ inputs.branch }} 
-      pattern: ${{ inputs.pattern }} 
-      config: ${{ inputs.config }} 
-      max_vus: ${{ inputs.max_vus }} 
+      branch: ${{ inputs.branch }}
+      pattern: ${{ inputs.pattern }}
+      config: ${{ inputs.config }}
+      max_vus: ${{ inputs.max_vus }}
       scenario: ${{ inputs.scenario }}
       execute: ${{ inputs.execute }}
-    secrets: 
+    secrets:
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-    

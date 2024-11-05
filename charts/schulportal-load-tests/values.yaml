@@ -1,5 +1,5 @@
 branch: "main"
-imageTag: latest #default latest, release oder main ? 
+imageTag: latest #default latest, release oder main ?
 port: 5656
 schedule: 0 8 * * *
 pattern: "dummy_pattern"
@@ -15,7 +15,7 @@ cronjobs:
   staging-scenario:
     serviceName: staging-scenario
     spsh_base: "https://spsh.staging.spsh.dbildungsplattform.de"
-  # prod-scenario: 
+  # prod-scenario:
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
   #   environment: spsh.dbildungsplattform.de

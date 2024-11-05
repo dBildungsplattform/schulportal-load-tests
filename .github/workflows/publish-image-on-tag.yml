@@ -1,4 +1,4 @@
-name: 'Publish image to GHCR and Helm chart to GH pages on tag'
+name: "Publish image to GHCR and Helm chart to GH pages on tag"
 
 on:
   push:

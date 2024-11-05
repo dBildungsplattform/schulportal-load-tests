@@ -1,11 +1,9 @@
 import { check, group } from "k6";
 import { RefinedResponse, ResponseType } from "k6/http";
-import { sha512 } from "k6/crypto";
 import { Counter, Trend } from "k6/metrics";
 import { loginPage } from "../pages/login.ts";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions } from "../util/config.ts";
-import { prettyLog } from "../util/debug.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { getDefaultUserMix } from "../util/users.ts";
 
