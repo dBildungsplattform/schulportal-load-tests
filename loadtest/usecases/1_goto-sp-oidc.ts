@@ -13,7 +13,7 @@ const serviceProviderName = "E-Mail";
 
 export default wrapTestFunction(main);
 
-function main(users = new UserMix({ LEHR: 1 })) {
+function main(users = new UserMix({ LEHR: 1000 })) {
   const { providers } = login(users.getLogin());
   group("go to sp", () => {
     const target = providers.find((p) => p.name == serviceProviderName);
