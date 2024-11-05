@@ -37,17 +37,12 @@ function main() {
   group("submit form", () => {
     // submit form
     const user = users.getLogin();
-    prettyLog(sha512(user.username, "hex"), "user");
-    prettyLog(sha512(user.password, "hex"), "pass");
     keycloakFormResponse = loginPage.submitForm(loginPageResponse, user);
     check(keycloakFormResponse, {
       "submitting login form to kc succeeded": () =>
         keycloakFormResponse.status === 302,
       ...defaultTimingCheck,
     });
-    console.log(keycloakFormResponse.url);
-    console.log(keycloakFormResponse.status);
-    console.log(keycloakFormResponse.body);
   });
 
   group("finish login", () => {
