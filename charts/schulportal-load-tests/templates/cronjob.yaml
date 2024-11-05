@@ -38,7 +38,7 @@ spec:
               - name: PATTERN
                 value: {{ $.Values.pattern }}
               - name: MAX_VUS
-                value: {{ $.Values.max_vus }}
+                value: {{ $.Values.max_vus | quote }}
             command: ["sh", "-c", 
                         "git clone https://github.com/dBildungsplattform/schulportal-load-tests &&
                         cd schulportal-load-tests && 
