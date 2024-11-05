@@ -2,8 +2,8 @@ name: 'Publish image to GHCR on push to branch'
 
 on:
   push:
-    branches-ignore:
-      - 'main'
+    #branches-ignore:
+    #  - 'main'
 
 concurrency:
   group: schulportal-load-tests-${{ github.ref }}
