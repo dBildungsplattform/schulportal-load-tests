@@ -16,6 +16,10 @@ on:
         type: string 
         required: false
         default: "debug"
+      max_vus:
+        type: string 
+        required: false
+        default: "10"
       scenario:
         type: string
         required: true
@@ -93,6 +97,7 @@ jobs:
             --set branch="${{ inputs.branch }}" \
             --set pattern="${{ inputs.pattern }}" \
             --set config="${{ inputs.config }}" \
+            --set max_vus="${{ inputs.max_vus }}" \
             ${{ inputs.branch != 'main' && format('--set imageTag="{0}"', needs.branch_meta.outputs.ticket ) || '--set imageTag="latest"' }} \
             --wait
 

@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: "debug"
+      max_vus:
+        description: 'sets the maximum number of virtual users'
+        required: false
+        type: string
+        default: "10"
       scenario:
         description: 'name of test scenario defined in values.yaml'
         type: string
@@ -41,6 +46,7 @@ jobs:
       branch: ${{ inputs.branch }} 
       pattern: ${{ inputs.pattern }} 
       config: ${{ inputs.config }} 
+      max_vus: ${{ inputs.max_vus }} 
       scenario: ${{ inputs.scenario }}
       execute: ${{ inputs.execute }}
     secrets: 
