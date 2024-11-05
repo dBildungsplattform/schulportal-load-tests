@@ -4,7 +4,7 @@ port: 5656
 schedule: 0 8 * * *
 pattern: "dummy_pattern"
 config: "dummy_config"
-max_vus: "10"
+max_vus: 10
 
 cronjobs:
   dev-scenario:
