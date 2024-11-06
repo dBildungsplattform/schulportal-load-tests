@@ -19,8 +19,8 @@ on:
         required: false
         type: string
         default: "debug"
-      scenario:
-        description: 'name of test scenario defined in values.yaml'
+      scenario-list:
+        description: 'name list of test scenarios defined in values.yaml (scenario1,scenario2,...)'
         type: string
         required: true
         default: dev-scenario
@@ -28,7 +28,7 @@ on:
         description: "execute cronjob scenario after install"
         type: boolean
         required: true
-        default: true
+        default: false
 
 jobs:
   install_loadtest:
@@ -41,7 +41,7 @@ jobs:
       branch: ${{ inputs.branch }} 
       pattern: ${{ inputs.pattern }} 
       config: ${{ inputs.config }} 
-      scenario: ${{ inputs.scenario }}
+      scenario-list: ${{ inputs.scenario-list }}
       execute: ${{ inputs.execute }}
     secrets: 
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
