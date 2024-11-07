@@ -12,7 +12,7 @@ const successfulLoginDuration = new Trend("successful_logins_duration", true);
 const users = getDefaultUserMix();
 
 export const options = {
-  ...getDefaultOptions(users),
+  ...getDefaultOptions(),
 };
 
 export default wrapTestFunction(main);

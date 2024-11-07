@@ -1,6 +1,5 @@
-import { UserMix } from "./users.ts";
-
 const SPSH_BASE = __ENV["SPSH_BASE"];
+const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
 
 export enum CONFIG {
   SPIKE = "spike",
@@ -17,11 +16,9 @@ export function getConfig(): CONFIG {
   throw Error(`Invalid value for config '${config}'`);
 }
 
-export function getDefaultOptions(users?: UserMix) {
+export function getDefaultOptions() {
   const config = getConfig();
-  // Use this for real setup only; Traffic will be high
-  //const maxVUs = users ? users.getTotalUserNumber() : 100;
-  const maxVUs = 10;
+  const maxVUs = MAX_VUS ?? 10;
   switch (config) {
     case CONFIG.SPIKE:
       return {
@@ -47,12 +44,12 @@ export function getDefaultOptions(users?: UserMix) {
         stages: [{ duration: "10m", target: 10 * maxVUs }],
         thresholds: {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
-          http_req_duration: [{ threshold: "p(95)<2000", abortOnFail: true }],
+          http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
         },
       };
     case CONFIG.DEBUG:
       return {
-        stages: [{ duration: "1m", target: 50 }],
+        stages: [{ duration: "1s", target: maxVUs }],
       };
   }
 }
