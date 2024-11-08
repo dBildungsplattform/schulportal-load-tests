@@ -142,12 +142,4 @@ export class UserMix {
       this.tracker.set(key, value);
     }
   }
-
-  getTotalUserNumber() {
-    return this.maxUsers
-      ? this.maxUsers
-      : this.activeRoles.reduce((total, role) => {
-          return total + mapRoleToCount(role);
-        }, 0);
-  }
 }
