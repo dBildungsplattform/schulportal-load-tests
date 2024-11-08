@@ -4,8 +4,13 @@ name: Trigger Loadtest
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: "Branch to take tests and helm/cron setup  from"
+      branch_code:
+        description: "Branch to take test code and helm/cron setup from"
+        required: false
+        type: string
+        default: main
+      branch_img:
+        description: "Branch to take Dockerfile/img from"
         required: false
         type: string
         default: main
@@ -43,7 +48,8 @@ jobs:
       contents: read
     uses: ./.github/workflows/install-and-run-spsh-loadtest.yml
     with:
-      branch: ${{ inputs.branch }}
+      branch_code: ${{ inputs.branch_code }}
+      branch_img: ${{ inputs.branch_img }}
       pattern: ${{ inputs.pattern }}
       config: ${{ inputs.config }}
       max_vus: ${{ inputs.max_vus }}
