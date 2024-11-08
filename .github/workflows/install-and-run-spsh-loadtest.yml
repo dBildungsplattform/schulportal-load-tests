@@ -79,8 +79,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
         with:
           repository: "dBildungsplattform/schulportal-load-tests"
-          # change this ref to a branch to test changes
-          ref: "${{ inputs.branch_img }}"
+          ref: "${{ inputs.branch_code }}"
 
       - name: Install kubectl and Helm
         uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f #v4.0.0
@@ -116,4 +115,3 @@ jobs:
         if: ${{ inputs.execute }}
         run: |
           kubectl create job --from=cronjob/loadtest-spsh-${{inputs.scenario}} ${{ inputs.scenario}}-${{steps.convert_branch.outputs.lowercase_branch}}-$(date +%d.%m.%Y-%H%M) -n spsh
-        # kubectl create job --from=cronjob/<cronjob-name> <job-name> -n <namespace-name>
