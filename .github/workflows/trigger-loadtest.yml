@@ -38,7 +38,7 @@ on:
         description: "execute cronjob scenario after install"
         type: boolean
         required: true
-        default: true
+        default: false
 
 jobs:
   install_loadtest:

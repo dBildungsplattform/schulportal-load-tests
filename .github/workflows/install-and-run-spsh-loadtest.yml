@@ -31,7 +31,7 @@ on:
       execute:
         type: boolean
         required: true
-        default: true
+        default: false
 
     secrets:
       KUBECONFIG:
