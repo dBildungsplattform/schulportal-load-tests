@@ -1,3 +1,4 @@
+import { group } from "k6";
 import { getLoginInfo, getRollen } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { goToUserList } from "../util/page.ts";
@@ -15,6 +16,8 @@ export default wrapTestFunction(main);
 function main() {
   goToUserList(users.getLogin());
   getLoginInfo();
-  for (let offset = 0; offset < 5; offset++)
-    getRollen([`offset=${offset}`, "limit=30", "searchStr="]);
+  group("list rollen", () => {
+    for (let offset = 0; offset < 5; offset++)
+      getRollen([`offset=${offset}`, "limit=30", "searchStr="]);
+  });
 }

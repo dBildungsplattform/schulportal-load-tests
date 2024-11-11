@@ -6,8 +6,7 @@ import { UserDetailsPage } from "../pages/user-details.ts";
 import { userListPage } from "../pages/user-list.ts";
 import { putPersonLock } from "../util/api.ts";
 import { defaultTimingCheck, getStatusChecker } from "../util/checks.ts";
-import { getDefaultOptions } from "../util/config.ts";
-import { prettyLog } from "../util/debug.ts";
+import { getDefaultOptions, MAX_VUS } from "../util/config.ts";
 import { login } from "../util/page.ts";
 import {
   createTestUsers,
@@ -28,7 +27,7 @@ export const options = {
 export function setup(): TestData {
   login(users.getLogin());
   deleteAllTestUsers();
-  const testIds: Array<string> = createTestUsers(users.getTotalUserNumber());
+  const testIds: Array<string> = createTestUsers(MAX_VUS);
   logout();
   return { testIds };
 }
@@ -64,7 +63,6 @@ function main({ testIds }: TestData) {
 
 function lockAndCheck(personId: string, lock: boolean) {
   const response = putPersonLock(personId, lock);
-  prettyLog(response, `${lock ? "" : "un"}lock response`);
   check(response, {
     "got expected status": getStatusChecker(202),
     ...defaultTimingCheck,

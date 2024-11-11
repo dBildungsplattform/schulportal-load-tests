@@ -1,5 +1,5 @@
 const SPSH_BASE = __ENV["SPSH_BASE"];
-const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
+export const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
 
 export enum CONFIG {
   SPIKE = "spike",

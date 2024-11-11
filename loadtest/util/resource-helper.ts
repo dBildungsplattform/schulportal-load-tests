@@ -16,7 +16,6 @@ import {
 } from "./api.ts";
 import { getBackendUrl } from "./config.ts";
 import { getRandomName, NAME_PREFIX } from "./data.ts";
-import { prettyLog } from "./debug.ts";
 
 const orgParams: CreateOrganisationBodyParams = {
   name: `${NAME_PREFIX}-Test-Schule`,
@@ -67,7 +66,6 @@ export function createTestUsers(n: number): Array<string> {
       .map((p) => p.person.id);
     return ids;
   } catch {
-    prettyLog(responses, "setup error");
     fail("setup: creating persons failed");
   }
 }

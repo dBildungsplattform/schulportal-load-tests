@@ -71,7 +71,19 @@ export function makeHttpRequest(
       resource,
     },
   });
-  if (response.error_code) prettyLog(response, "HTTP ERROR");
+  if (response.error || response.error_code)
+    prettyLog(
+      {
+        url: response.url,
+        status: response.status,
+        statusText: response.status_text,
+        headers: response.headers,
+        timings: response.timings,
+        error: response.error,
+        errorCode: response.error_code,
+      },
+      "HTTP ERROR",
+    );
   return response;
 }
 
@@ -186,9 +198,7 @@ export function getPersonenIds(
 
 export function getPersonen(query?: Array<string>) {
   const response = makeHttpRequest("get", "personen-frontend", { query });
-  const result = check(response, defaultHttpCheck);
-  if (!result) prettyLog(response);
-
+  check(response, defaultHttpCheck);
   return response.json() as unknown as PersonFrontendControllerFindPersons200Response;
 }
 

@@ -6,7 +6,7 @@ import { UserDetailsPage } from "../pages/user-details.ts";
 import { userListPage } from "../pages/user-list.ts";
 import { resetPassword } from "../util/api.ts";
 import { defaultTimingCheck, getStatusChecker } from "../util/checks.ts";
-import { getDefaultOptions } from "../util/config.ts";
+import { getDefaultOptions, MAX_VUS } from "../util/config.ts";
 import { login } from "../util/page.ts";
 import {
   createTestUsers,
@@ -27,7 +27,7 @@ export const options = {
 export function setup(): TestData {
   login(users.getLogin());
   deleteAllTestUsers();
-  const testIds: Array<string> = createTestUsers(users.getTotalUserNumber());
+  const testIds: Array<string> = createTestUsers(MAX_VUS);
   logout();
   return { testIds };
 }

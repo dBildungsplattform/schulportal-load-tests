@@ -6,7 +6,6 @@ import { loadLinkedResourcesAndCheck } from "../util/load-linked-resources.ts";
 import { loadPage } from "../util/page.ts";
 import { LoginData } from "../util/users.ts";
 import { PageObject } from "./index.ts";
-import { prettyLog } from "../util/debug.ts";
 
 class LoginPage implements PageObject {
   name = "Login";
@@ -32,9 +31,7 @@ class LoginPage implements PageObject {
         if (response.status !== 200 && response.status !== 302) {
           fail("login failed");
         }
-      } catch (error) {
-        prettyLog(error, "LOGIN ERROR");
-        prettyLog(response, "RESPONSE");
+      } catch {
         fail("login failed");
       }
     });
