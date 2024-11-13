@@ -3,3 +3,8 @@ export interface PageObject {
   url: string;
   navigate: () => void;
 }
+
+export function logout() {
+  // TODO: implement
+  //stub
+}

@@ -1,6 +1,7 @@
 import { check, fail } from "k6";
-import http, { RefinedParams, RequestBody, ResponseType } from "k6/http";
+import http, { RefinedParams, RequestBody, ResponseType, url } from "k6/http";
 import {
+  CreateRolleBodyParams,
   DbiamCreatePersonWithPersonenkontexteBodyParams,
   DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
   DBiamPersonResponse,
@@ -8,7 +9,10 @@ import {
   OrganisationResponse,
   PersonenkontextWorkflowResponse,
   PersonFrontendControllerFindPersons200Response,
+  RolleResponse,
+  RolleWithServiceProvidersResponse,
   ServiceProviderResponse,
+  TokenInitBodyParams,
   UserinfoResponse,
 } from "../api-client/generated/index.ts";
 import {
@@ -33,17 +37,43 @@ export function removeQueryString(url: string): string {
   return url.split("?")[0];
 }
 
+function postJson(
+  resource: string,
+  body: unknown,
+  options: Partial<{
+    url: ReturnType<typeof url>;
+    query: Array<string>;
+    body: RequestBody;
+    params: RefinedParams<ResponseType | undefined>;
+  }> = {},
+) {
+  options.params = {
+    ...options?.params,
+    headers: { "Content-Type": "application/json" },
+  };
+  const response = makeHttpRequest("post", resource, {
+    ...options,
+    body: JSON.stringify(body),
+  });
+  check(response, {
+    "got 201": getStatusChecker(201),
+    ...defaultTimingCheck,
+  });
+  return response;
+}
+
 export function makeHttpRequest(
-  verb: "get" | "post",
+  verb: "get" | "post" | "delete",
   resource: string,
   options?: Partial<{
+    url: ReturnType<typeof url>;
     query: Array<string>;
     body: RequestBody;
     params: RefinedParams<ResponseType | undefined>;
   }>,
 ) {
   const queryString = options?.query ? makeQueryString(options.query) : "";
-  const url = `${backendUrl}${resource}${queryString}`;
+  const url = options?.url ?? `${backendUrl}${resource}${queryString}`;
   return http.request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
     tags: {
@@ -76,6 +106,17 @@ export function getServiceProviders() {
   return providers as unknown as Array<ServiceProviderResponse>;
 }
 
+export function getAllProviders() {
+  const providerResponse = makeHttpRequest("get", "provider/all");
+  check(providerResponse, defaultHttpCheck);
+  const providers = providerResponse.json() as unknown as Array<{
+    id: string;
+    name: string;
+    url: string;
+  }>;
+  return providers as unknown as Array<ServiceProviderResponse>;
+}
+
 export function getServiceProviderLogos(providers: Array<{ id: string }>) {
   try {
     for (const provider of providers) {
@@ -98,6 +139,14 @@ export function getOrganisationen(query?: Array<string>) {
   const response = makeHttpRequest("get", "organisationen", { query });
   check(response, defaultHttpCheck);
   return response.json() as unknown as Array<OrganisationResponse>;
+}
+
+export function getOrganisationById(id: string) {
+  const response = makeHttpRequest("get", "organisationen", {
+    url: url`${backendUrl}organisationen/${id}`,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as OrganisationResponse;
 }
 
 export function getAdministeredOrganisationenById(
@@ -156,6 +205,38 @@ export function getRollen(query?: Array<string>) {
   ) as unknown as FindRollenResponse["moeglicheRollen"];
 }
 
+export function getRolleById(id: string) {
+  const response = makeHttpRequest("get", "rolle", {
+    url: url`${backendUrl}rolle/${id}`,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as RolleWithServiceProvidersResponse;
+}
+
+export function postRolle(bodyParams: CreateRolleBodyParams) {
+  const body = JSON.stringify(bodyParams);
+  const params = {
+    headers: { "Content-Type": "application/json" },
+  };
+  const response = makeHttpRequest("post", "rolle", {
+    body,
+    params,
+  });
+  check(response, defaultHttpCheck);
+  return response.json() as unknown as RolleResponse;
+}
+
+export function deleteRolleById(id: string) {
+  const response = makeHttpRequest("delete", "rolle", {
+    url: url`${backendUrl}rolle/${id}`,
+  });
+  check(response, {
+    "got 204": getStatusChecker(204),
+    ...defaultTimingCheck,
+  });
+  return response;
+}
+
 export function getPersonenkontextWorkflowStep(query?: Array<string>) {
   const response = makeHttpRequest("get", "personenkontext-workflow/step", {
     query,
@@ -179,4 +260,8 @@ export function postPersonenkontextWorkflow(
     ...defaultTimingCheck,
   });
   return response.json() as unknown as DBiamPersonResponse;
+}
+
+export function twoFactorTokenInit(bodyParams: TokenInitBodyParams) {
+  return postJson("2fa-token/init", bodyParams);
 }

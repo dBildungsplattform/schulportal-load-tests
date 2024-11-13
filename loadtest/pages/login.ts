@@ -27,6 +27,7 @@ class LoginPage implements PageObject {
       response = this.submitForm(response, user);
       response = this.complete(response);
       if (response.status !== 200 && response.status !== 302) {
+        console.log("login failed");
         fail("login failed");
       }
     });
@@ -49,8 +50,11 @@ class LoginPage implements PageObject {
       !check(actionUrl, {
         "action url found": (url) => url != undefined,
       })
-    )
+    ) {
+      console.log("action for #kc-form-login was not found");
+      console.log(response);
       fail("action for #kc-form-login was not found");
+    }
 
     const loginData = {
       ...user,
@@ -71,6 +75,7 @@ class LoginPage implements PageObject {
         "login url found": (url) => url != undefined,
       })
     ) {
+      console.log("did not find Location in kc response");
       fail("did not find Location in kc response");
     }
     // this redirects to the start page

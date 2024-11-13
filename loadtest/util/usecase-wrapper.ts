@@ -17,6 +17,7 @@ export function wrapTestFunction(testFunction: () => void): () => void {
     } catch (error: unknown) {
       abortedCounter.add(1, { name: getErrorName(error as Error) });
       abortedDuration.add(Date.now() - start);
+      console.log(`${__VU} - ${__ITER}: ${JSON.stringify(error)}`);
     } finally {
       sleep(1);
     }

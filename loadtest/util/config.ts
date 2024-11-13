@@ -52,7 +52,7 @@ export function getDefaultOptions(users?: UserMix) {
       };
     case CONFIG.DEBUG:
       return {
-        stages: [{ duration: "1m", target: 50 }],
+        stages: [{ duration: "10s", target: maxVUs }],
       };
   }
 }
