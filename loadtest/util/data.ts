@@ -48,3 +48,7 @@ export function getRandomName(): {
     vorname: s,
   };
 }
+
+export function getFutureDate() {
+  return new Date("2055-07-31T22:00:00.000Z");
+}

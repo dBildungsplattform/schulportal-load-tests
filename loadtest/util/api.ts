@@ -36,7 +36,7 @@ import {
   getStatusChecker,
 } from "./checks.ts";
 import { getBackendUrl } from "./config.ts";
-import { NAME_PREFIX } from "./data.ts";
+import { getFutureDate, NAME_PREFIX } from "./data.ts";
 import { prettyLog } from "./debug.ts";
 
 const backendUrl = getBackendUrl();
@@ -327,6 +327,7 @@ export function putPersonLock(personId: string, lock: boolean) {
     lock,
     //@ts-expect-error openapi generator converts this to camelcase
     locked_by: NAME_PREFIX,
+    locked_until: getFutureDate(),
   };
   const params = {
     headers: { "Content-Type": "application/json" },

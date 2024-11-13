@@ -10,7 +10,7 @@ import {
   postPersonenkontextWorkflow,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
-import { getRandomName, pickRandomItem } from "../util/data.ts";
+import { getFutureDate, getRandomName, pickRandomItem } from "../util/data.ts";
 import { goToUserList, login } from "../util/page.ts";
 import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
@@ -67,7 +67,7 @@ function main(users = getDefaultAdminMix()) {
     const body = {
       ...getRandomName(),
       personalnummer: "",
-      befristung: new Date("2055-07-31T22:00:00.000Z"),
+      befristung: getFutureDate(),
       createPersonenkontexte: [
         {
           organisationId: organisation.id,
