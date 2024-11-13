@@ -1855,7 +1855,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RolleServiceProviderQueryParams"
+                "$ref": "#/components/schemas/RolleServiceProviderBodyParams"
               }
             }
           }
@@ -1901,19 +1901,18 @@
             "in": "path",
             "description": "The id for the rolle.",
             "schema": { "nullable": false, "type": "string" }
-          },
-          {
-            "name": "serviceProviderIds",
-            "required": true,
-            "in": "query",
-            "description": "An array of ids for the service providers.",
-            "schema": {
-              "nullable": false,
-              "type": "array",
-              "items": { "type": "string" }
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolleServiceProviderBodyParams"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Removing service-provider finished successfully."
@@ -2814,6 +2813,206 @@
         "tags": ["2FA"],
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
       }
+    },
+    "/api/cron/kopers-lock": {
+      "put": {
+        "operationId": "CronController_koPersUserLock",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "User were successfully locked.",
+            "content": {
+              "application/json": { "schema": { "type": "boolean" } }
+            }
+          },
+          "400": { "description": "User are not given or not found" },
+          "401": { "description": "Not authorized to lock user." },
+          "403": { "description": "Insufficient permissions to lock user." },
+          "404": { "description": "Insufficient permissions to lock user." },
+          "500": {
+            "description": "Internal server error while trying to lock user."
+          }
+        },
+        "tags": ["cron"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/cron/kontext-expired": {
+      "put": {
+        "operationId": "CronController_removePersonenKontexteWithExpiredBefristungFromUsers",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Personenkontexte were successfully removed from users.",
+            "content": {
+              "application/json": { "schema": { "type": "boolean" } }
+            }
+          },
+          "400": {
+            "description": "Personenkontexte are not given or not found."
+          },
+          "401": {
+            "description": "Not authorized to remove personenkontexte from users."
+          },
+          "403": {
+            "description": "Insufficient permissions to remove personenkontexte from users."
+          },
+          "404": {
+            "description": "Insufficient permissions to remove personenkontexte from users."
+          },
+          "500": {
+            "description": "Internal server error while trying to remove personenkontexte from users."
+          }
+        },
+        "tags": ["cron"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/cron/person-without-org": {
+      "put": {
+        "operationId": "CronController_personWithoutOrgDelete",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "User were successfully removed.",
+            "content": {
+              "application/json": { "schema": { "type": "boolean" } }
+            }
+          },
+          "400": { "description": "User are not given or not found" },
+          "401": { "description": "Not authorized to remove user." },
+          "403": { "description": "Insufficient permissions to delete user." },
+          "404": { "description": "Insufficient permissions to delete user." },
+          "500": {
+            "description": "Internal server error while trying to remove user."
+          }
+        },
+        "tags": ["cron"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/import/upload": {
+      "post": {
+        "operationId": "ImportController_uploadFile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DbiamPersonenkontextImportBodyParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns an import upload response object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportUploadResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "The CSV file was not valid." },
+          "401": {
+            "description": "Not authorized to import data with a CSV file."
+          },
+          "403": {
+            "description": "Insufficient permissions to import data with a CSV file."
+          },
+          "500": {
+            "description": "Internal server error while importing data with a CSV file."
+          }
+        },
+        "tags": ["import"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/import/execute": {
+      "post": {
+        "operationId": "ImportController_executeImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportvorgangByIdBodyParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import transaction was executed successfully. The text file can be downloaded",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "400": {
+            "description": "Something went wrong with the found import transaction.",
+            "content": {
+              "text/plain": {
+                "schema": { "$ref": "#/components/schemas/DbiamImportError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to execute the import transaction."
+          },
+          "403": {
+            "description": "Insufficient permissions to execute the import transaction."
+          },
+          "404": { "description": "The import transaction does not exist." },
+          "500": {
+            "description": "Internal server error while executing the import transaction."
+          }
+        },
+        "tags": ["import"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/import/{importvorgangId}": {
+      "delete": {
+        "operationId": "ImportController_deleteImportTransaction",
+        "summary": "",
+        "description": "Delete a role by id.",
+        "parameters": [
+          {
+            "name": "importvorgangId",
+            "required": true,
+            "in": "path",
+            "description": "The id of an import transaction",
+            "schema": { "nullable": false, "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Import transaction was deleted successfully."
+          },
+          "400": {
+            "description": "Something went wrong with the found import transaction.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DbiamImportError" }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to delete the import transaction."
+          },
+          "404": {
+            "description": "The import transaction that should be deleted does not exist."
+          }
+        },
+        "tags": ["import"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
     }
   },
   "info": {
@@ -2889,7 +3088,8 @@
             "items": {
               "$ref": "#/components/schemas/PersonenkontextRolleFieldsResponse"
             }
-          }
+          },
+          "acr": { "type": "string", "nullable": false }
         },
         "required": [
           "sub",
@@ -2912,7 +3112,8 @@
           "phone_number",
           "updated_at",
           "password_updated_at",
-          "personenkontexte"
+          "personenkontexte",
+          "acr"
         ]
       },
       "CreatePersonMigrationBodyParams": {
@@ -2954,6 +3155,28 @@
         "type": "string",
         "enum": ["KEIN", "UNBE", "TEIL", "VOLL"]
       },
+      "UserLockParams": {
+        "type": "object",
+        "properties": {
+          "personId": { "type": "string", "nullable": true },
+          "locked_by": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "nullable": true },
+          "locked_until": { "type": "string", "nullable": true }
+        },
+        "required": ["personId", "locked_by", "created_at", "locked_until"]
+      },
+      "EmailAddressStatus": {
+        "type": "string",
+        "enum": ["ENABLED", "DISABLED", "REQUESTED", "FAILED"]
+      },
+      "PersonEmailResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "$ref": "#/components/schemas/EmailAddressStatus" },
+          "address": { "type": "string" }
+        },
+        "required": ["status", "address"]
+      },
       "PersonResponse": {
         "type": "object",
         "properties": {
@@ -2979,11 +3202,19 @@
           },
           "personalnummer": { "type": "string", "nullable": true },
           "isLocked": { "type": "boolean", "nullable": true },
-          "lockInfo": { "type": "object", "nullable": true },
+          "userLock": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/UserLockParams" }]
+          },
           "lastModified": {
             "format": "date-time",
             "type": "string",
             "description": "Date of the most recent changes for the person"
+          },
+          "email": {
+            "nullable": true,
+            "description": "Contains status and address. Returns email-address verified by OX (enabled) if available, otherwise returns most recently updated one (no prioritized status)",
+            "allOf": [{ "$ref": "#/components/schemas/PersonEmailResponse" }]
           }
         },
         "required": [
@@ -3000,8 +3231,9 @@
           "startpasswort",
           "personalnummer",
           "isLocked",
-          "lockInfo",
-          "lastModified"
+          "userLock",
+          "lastModified",
+          "email"
         ]
       },
       "PersonendatensatzResponse": {
@@ -3109,9 +3341,14 @@
         "type": "object",
         "properties": {
           "lock": { "type": "boolean", "nullable": false },
-          "locked_from": { "type": "string", "nullable": false }
+          "locked_by": { "type": "string", "nullable": false },
+          "locked_until": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Required if Befristung is set"
+          }
         },
-        "required": ["lock", "locked_from"]
+        "required": ["lock", "locked_by"]
       },
       "PersonLockResponse": {
         "type": "object",
@@ -3362,7 +3599,8 @@
           "namensergaenzung": { "type": "string" },
           "kuerzel": { "type": "string" },
           "typ": { "$ref": "#/components/schemas/OrganisationsTyp" },
-          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" }
+          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" },
+          "emailAdress": { "type": "string" }
         },
         "required": ["name", "typ"]
       },
@@ -3409,7 +3647,8 @@
               "ORGANISATION_IST_BEREITS_ZUGEWIESEN_ERROR",
               "NAME_REQUIRED_FOR_KLASSE",
               "NAME_ENTHAELT_LEERZEICHEN",
-              "KENNUNG_ENTHAELT_LEERZEICHEN"
+              "KENNUNG_ENTHAELT_LEERZEICHEN",
+              "EMAIL_ADRESS_ON_ORGANISATION_TYP"
             ]
           },
           "code": {
@@ -3432,7 +3671,8 @@
           "namensergaenzung": { "type": "string" },
           "kuerzel": { "type": "string" },
           "typ": { "$ref": "#/components/schemas/OrganisationsTyp" },
-          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" }
+          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" },
+          "emailAdress": { "type": "string" }
         },
         "required": ["name", "typ"]
       },
@@ -3478,7 +3718,9 @@
           "KLASSEN_VERWALTEN",
           "SCHULTRAEGER_VERWALTEN",
           "MIGRATION_DURCHFUEHREN",
-          "PERSON_SYNCHRONISIEREN"
+          "PERSON_SYNCHRONISIEREN",
+          "CRON_DURCHFUEHREN",
+          "IMPORT_DURCHFUEHREN"
         ]
       },
       "OrganisationByIdBodyParams": {
@@ -3557,6 +3799,7 @@
             "type": "string",
             "nullable": true
           },
+          "version": { "type": "number" },
           "serviceProviders": {
             "type": "array",
             "items": {
@@ -3575,6 +3818,7 @@
           "systemrechte",
           "administeredBySchulstrukturknotenName",
           "administeredBySchulstrukturknotenKennung",
+          "version",
           "serviceProviders"
         ]
       },
@@ -3629,7 +3873,8 @@
           "administeredBySchulstrukturknotenKennung": {
             "type": "string",
             "nullable": true
-          }
+          },
+          "version": { "type": "number" }
         },
         "required": [
           "id",
@@ -3641,7 +3886,8 @@
           "merkmale",
           "systemrechte",
           "administeredBySchulstrukturknotenName",
-          "administeredBySchulstrukturknotenKennung"
+          "administeredBySchulstrukturknotenKennung",
+          "version"
         ]
       },
       "AddSystemrechtBodyParams": {
@@ -3661,7 +3907,7 @@
         },
         "required": ["serviceProviderIds"]
       },
-      "RolleServiceProviderQueryParams": {
+      "RolleServiceProviderBodyParams": {
         "type": "object",
         "properties": {
           "serviceProviderIds": {
@@ -3669,9 +3915,13 @@
             "nullable": false,
             "type": "array",
             "items": { "type": "string" }
+          },
+          "version": {
+            "type": "number",
+            "description": "The version for the rolle."
           }
         },
-        "required": ["serviceProviderIds"]
+        "required": ["serviceProviderIds", "version"]
       },
       "ServiceProviderTarget": {
         "type": "string",
@@ -3725,9 +3975,16 @@
             "uniqueItems": true,
             "type": "array",
             "items": { "type": "string" }
-          }
+          },
+          "version": { "type": "number" }
         },
-        "required": ["name", "merkmale", "systemrechte", "serviceProviderIds"]
+        "required": [
+          "name",
+          "merkmale",
+          "systemrechte",
+          "serviceProviderIds",
+          "version"
+        ]
       },
       "DbiamRolleError": {
         "type": "object",
@@ -3739,7 +3996,8 @@
               "ADD_SYSTEMRECHT_ERROR",
               "ROLLE_HAT_PERSONENKONTEXTE_ERROR",
               "UPDATE_MERKMALE_ERROR",
-              "ROLLENNAME_ENTHAELT_LEERZEICHEN"
+              "ROLLENNAME_ENTHAELT_LEERZEICHEN",
+              "NEWER_VERSION_OF_ROLLE_AVAILABLE"
             ]
           },
           "code": {
@@ -4146,6 +4404,90 @@
         "type": "object",
         "properties": { "required": { "type": "boolean" } },
         "required": ["required"]
+      },
+      "DbiamPersonenkontextImportBodyParams": {
+        "type": "object",
+        "properties": {
+          "organisationId": { "type": "string" },
+          "rolleId": { "type": "string" },
+          "file": { "type": "string", "format": "binary" }
+        },
+        "required": ["organisationId", "rolleId", "file"]
+      },
+      "ImportDataItemResponse": {
+        "type": "object",
+        "properties": {
+          "nachname": { "type": "string" },
+          "vorname": { "type": "string" },
+          "klasse": { "type": "string", "nullable": true },
+          "validationErrors": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["nachname", "vorname", "klasse", "validationErrors"]
+      },
+      "ImportUploadResponse": {
+        "type": "object",
+        "properties": {
+          "importvorgangId": {
+            "type": "string",
+            "description": "The import transaction number. it will be needed to execute the import and download the result"
+          },
+          "isValid": {
+            "type": "boolean",
+            "description": "It states if the import transaction contain errors."
+          },
+          "totalImportDataItems": {
+            "type": "number",
+            "description": "The total number of data items in the CSV file."
+          },
+          "totalInvalidImportDataItems": {
+            "type": "number",
+            "description": "The total number of data items in the CSV file that are invalid."
+          },
+          "invalidImportDataItems": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportDataItemResponse" }
+          }
+        },
+        "required": [
+          "importvorgangId",
+          "isValid",
+          "totalImportDataItems",
+          "totalInvalidImportDataItems",
+          "invalidImportDataItems"
+        ]
+      },
+      "ImportvorgangByIdBodyParams": {
+        "type": "object",
+        "properties": {
+          "importvorgangId": {
+            "type": "string",
+            "description": "The id of an import transaction",
+            "nullable": false
+          },
+          "organisationId": { "type": "string" },
+          "rolleId": { "type": "string" }
+        },
+        "required": ["importvorgangId", "organisationId", "rolleId"]
+      },
+      "DbiamImportError": {
+        "type": "object",
+        "properties": {
+          "i18nKey": {
+            "type": "string",
+            "enum": [
+              "IMPORT_ERROR",
+              "CSV_PARSING_ERROR",
+              "CSV_FILE_EMPTY_ERROR",
+              "IMPORT_TEXT_FILE_CREATION_ERROR",
+              "IMPORT_NUR_LERN_AN_SCHULE_ERROR"
+            ]
+          },
+          "code": {
+            "type": "number",
+            "description": "Corresponds to HTTP Status code like 200, 404, 500"
+          }
+        },
+        "required": ["i18nKey", "code"]
       }
     }
   }

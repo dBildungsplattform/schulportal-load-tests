@@ -1,5 +1,5 @@
 const SPSH_BASE = __ENV["SPSH_BASE"];
-const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
+export const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
 
 export enum CONFIG {
   SPIKE = "spike",
@@ -34,6 +34,7 @@ export function getDefaultOptions() {
           { duration: "1m", target: Math.round(maxVUs * 0.5) }, // ramp up 1
           { duration: "1m", target: Math.round(maxVUs * 0.8) }, // ramp up 2
           { duration: "1m", target: maxVUs }, // ramp up 3
+          { duration: "30s", target: maxVUs }, // hold
           { duration: "1m", target: Math.round(maxVUs * 0.8) }, // ramp down 1
           { duration: "1m", target: Math.round(maxVUs * 0.5) }, // ramp down 2
           { duration: "1m", target: 0 }, // ramp down 3

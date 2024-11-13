@@ -1,5 +1,5 @@
 import { Selection } from "k6/html";
-import http, { RefinedResponse, ResponseType } from "k6/http";
+import { get, RefinedResponse, ResponseType } from "k6/http";
 import { Counter, Trend } from "k6/metrics";
 
 // Metrics
@@ -35,7 +35,7 @@ function loadLinkedResources(
       const urls = links.map((link: string) => `${baseUrl}${link}`);
       responses = responses.concat(
         urls.map((url) =>
-          http.get(url, { tags: { name: `Linked Resource from ${baseUrl}` } }),
+          get(url, { tags: { name: `Linked Resource from ${baseUrl}` } }),
         ),
       );
     }

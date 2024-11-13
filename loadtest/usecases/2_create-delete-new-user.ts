@@ -1,19 +1,31 @@
 import { group, sleep } from "k6";
+import { logout } from "../pages/index.ts";
+import { UserDetailsPage } from "../pages/user-details.ts";
+import { userListPage } from "../pages/user-list.ts";
 import {
+  deletePersonById,
   getAdministeredOrganisationenById,
   getLoginInfo,
   getPersonenkontextWorkflowStep,
   postPersonenkontextWorkflow,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
-import { getRandomName, pickRandomItem } from "../util/data.ts";
-import { goToUserList } from "../util/page.ts";
+import { getFutureDate, getRandomName, pickRandomItem } from "../util/data.ts";
+import { goToUserList, login } from "../util/page.ts";
+import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultAdminMix } from "../util/users.ts";
+import { getDefaultAdminMix, UserMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
 };
+
+export function teardown() {
+  const admin = new UserMix({ SYSADMIN: 1 });
+  login(admin.getLogin());
+  deleteAllTestUsers();
+  logout();
+}
 
 export default wrapTestFunction(main);
 
@@ -24,7 +36,7 @@ function main(users = getDefaultAdminMix()) {
     getLoginInfo();
   });
 
-  group("go through workflow", () => {
+  const createdPerson = group("go through creation workflow", () => {
     const { organisations } = getPersonenkontextWorkflowStep(["limit=25"]);
     const organisation = pickRandomItem(organisations);
     typeIntoAutocomplete(organisation.name, (name) => {
@@ -55,7 +67,7 @@ function main(users = getDefaultAdminMix()) {
     const body = {
       ...getRandomName(),
       personalnummer: "",
-      befristung: new Date("2055-07-31T22:00:00.000Z"),
+      befristung: getFutureDate(),
       createPersonenkontexte: [
         {
           organisationId: organisation.id,
@@ -79,7 +91,16 @@ function main(users = getDefaultAdminMix()) {
     } else {
       body.personalnummer = "1237562";
     }
-    postPersonenkontextWorkflow(body);
+    return postPersonenkontextWorkflow(body);
+  });
+
+  group("navigate back", () => {
+    userListPage.navigate();
+    new UserDetailsPage(createdPerson.person.id).navigate();
+  });
+
+  group("go through deletion workflow", () => {
+    deletePersonById(createdPerson.person.id);
   });
 }
 

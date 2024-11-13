@@ -2,7 +2,26 @@
 
 Load and performance tests for the schulportal
 
-##
+## Running in the cluster
+
+Go to Actions > Trigger Loadtest > Run workflow.
+
+In the dialog enter the following and replace the UPPERCASE words in the right column with the appropriate values (see explanation below).
+
+| Use workflow from | DBP-1012-setup-loadtest-env |
+| Branch to take tests and helm/cron setup from | main |
+| sets PATTERN env var used as k6 input | PATTERN |
+| sets CONFIG env var used as k6 input | CONFIG |
+| name of test scenario defined in values.yaml | SCENARIO |
+| execute cronjob scenario after install | true |
+
+### Values explained
+
+| PATTERN | a glob that matches a file in `loadtest/usecases`, i.e. `1` or `login` |
+| CONFIG | one of spike, stress, breakpoint, debug; see `loadtest/util/config.ts` |
+| SCENARIO | target environment; one of dev-scenario, staging-scenario, prod-scenario; see `charts/schulportal-load-tests/values.yaml` |
+
+## Local
 
 ### Setup
 
@@ -48,4 +67,10 @@ npm run check # to format, lint, typecheck the code
 
 ```sh
 npm run generate-client # to generate new type-definitions for the api
+```
+
+```sh
+ # k6 requires filetypes on some imports and won't run without them.
+ # The error does not give you a lot to go on, but this will list all locations where these extensions are missing.
+./find-bad-imports.sh
 ```

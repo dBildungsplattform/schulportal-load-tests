@@ -22,11 +22,16 @@ class LoginPage implements PageObject {
    */
   login(user: LoginData) {
     group("login", () => {
-      this.navigate();
-      let response = this.goToKeycloakLogin();
-      response = this.submitForm(response, user);
-      response = this.complete(response);
-      if (response.status !== 200 && response.status !== 302) {
+      let response;
+      try {
+        this.navigate();
+        response = this.goToKeycloakLogin();
+        response = this.submitForm(response, user);
+        response = this.complete(response);
+        if (response.status !== 200 && response.status !== 302) {
+          fail("login failed");
+        }
+      } catch {
         fail("login failed");
       }
     });

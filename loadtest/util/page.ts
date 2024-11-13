@@ -43,4 +43,5 @@ export function loadPage(url: string, name?: string) {
     ...defaultTimingCheck,
   });
   loadLinkedResourcesAndCheck(response);
+  return response;
 }

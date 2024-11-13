@@ -15,6 +15,7 @@ cronjobs:
   staging-scenario:
     serviceName: staging-scenario
     spsh_base: "https://spsh.staging.spsh.dbildungsplattform.de"
+    kc_base: "https://keycloak.staging.spsh.dbildungsplattform.de"
   # prod-scenario:
   #   serviceName: prod-scenario
   #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest

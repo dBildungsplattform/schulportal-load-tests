@@ -7,7 +7,6 @@ import { getFrontendUrl } from "../util/config.ts";
 import { loadPage } from "../util/page.ts";
 import { PageObject } from "./index.ts";
 
-// class StartPage extends PageObject {
 class StartPage implements PageObject {
   name = "Start";
   url = getFrontendUrl();
