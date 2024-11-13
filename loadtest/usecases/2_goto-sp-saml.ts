@@ -3,7 +3,7 @@ import { get } from "k6/http";
 import { getDefaultOptions } from "../util/config.ts";
 import { loadPage, login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultAdminMix } from "../util/users.ts";
+import { UserMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
@@ -13,7 +13,7 @@ const serviceProviderName = "School-SH";
 
 export default wrapTestFunction(main);
 
-function main(users = getDefaultAdminMix()) {
+function main(users = new UserMix({ LEHR: 1000 })) {
   const { providers } = login(users.getLogin());
 
   const response = group("follow link", () => {
