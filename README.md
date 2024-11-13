@@ -8,7 +8,9 @@ Go to Actions > Trigger Loadtest > Run workflow.
 
 In the dialog enter the following and replace the UPPERCASE words in the right column with the appropriate values (see explanation below).
 
-| Use workflow from | DBP-1012-setup-loadtest-env |
+| Field | Value |
+| --- | --- |
+| Use workflow from | main |
 | Branch to take tests and helm/cron setup from | main |
 | sets PATTERN env var used as k6 input | PATTERN |
 | sets CONFIG env var used as k6 input | CONFIG |
@@ -17,6 +19,8 @@ In the dialog enter the following and replace the UPPERCASE words in the right c
 
 ### Values explained
 
+| Value | Description |
+| --- | --- |
 | PATTERN | a glob that matches a file in `loadtest/usecases`, i.e. `1` or `login` |
 | CONFIG | one of spike, stress, breakpoint, debug; see `loadtest/util/config.ts` |
 | SCENARIO | target environment; one of dev-scenario, staging-scenario, prod-scenario; see `charts/schulportal-load-tests/values.yaml` |
