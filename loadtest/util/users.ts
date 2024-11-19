@@ -111,12 +111,12 @@ export class UserMix {
 
   getUser(): User {
     const currentRole = this.getCurrentRole();
-    const user = groupedUsers.get(currentRole);
+    const user = groupedUsers.get(currentRole)?.next();
     if (!user)
       throw new Error(
         `user with requested role ${currentRole} is not present in ${DATAPATH}`,
       );
-    return user.next();
+    return user;
   }
 
   getCurrentRole(): ROLE {

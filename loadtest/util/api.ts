@@ -192,7 +192,7 @@ export function deleteKlasse(id: string) {
 export function getPersonenIds(
   personen?: PersonFrontendControllerFindPersons200Response,
 ): Set<string> {
-  if (!personen) personen = getPersonen();
+  if (!personen) personen = getPersonen(["limit=30"]);
   return new Set(personen.items.map(({ person }) => person.id));
 }
 
@@ -322,7 +322,6 @@ export function getResetPassword(query: Array<string>) {
 }
 
 export function putPersonLock(personId: string, lock: boolean) {
-  // TODO: befristung
   const lockUserBodyParams: LockUserBodyParams = {
     lock,
     //@ts-expect-error openapi generator converts this to camelcase

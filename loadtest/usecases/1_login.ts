@@ -5,11 +5,11 @@ import { loginPage } from "../pages/login.ts";
 import { defaultHttpCheck, defaultTimingCheck } from "../util/checks.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultUserMix } from "../util/users.ts";
+import { getDefaultAdminMix } from "../util/users.ts";
 
 const successfulLoginCounter = new Counter("successful_logins_counter");
 const successfulLoginDuration = new Trend("successful_logins_duration", true);
-const users = getDefaultUserMix();
+const users = getDefaultAdminMix();
 
 export const options = {
   ...getDefaultOptions(),

@@ -1,7 +1,7 @@
 import {
   DBiamPersonenuebersichtResponse,
+  FindRollenResponse,
   OrganisationResponse,
-  RolleWithServiceProvidersResponse,
 } from "../api-client/generated/index.ts";
 import {
   getLoginInfo,
@@ -17,7 +17,7 @@ import { PageObject } from "./index.ts";
 type FetchedData = {
   organisationen: OrganisationResponse[];
   personenuebersichten: DBiamPersonenuebersichtResponse[];
-  rollen: RolleWithServiceProvidersResponse[];
+  rollen: FindRollenResponse;
 };
 class UserListPage implements PageObject {
   name = "UserList";

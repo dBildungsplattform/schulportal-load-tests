@@ -1,4 +1,4 @@
-import { group, sleep } from "k6";
+import { group } from "k6";
 import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
 import { userListPage } from "../pages/user-list.ts";
 import {
@@ -34,7 +34,7 @@ function main(users = getDefaultAdminMix()) {
     getLoginInfo();
     orgId = pickRandomItem(organisationen).id;
     personenuebersicht = pickRandomItem(personenuebersichten);
-    rolleId = pickRandomItem(rollen).id;
+    rolleId = pickRandomItem(rollen.moeglicheRollen).id;
   });
 
   group("hit pages", () => {
