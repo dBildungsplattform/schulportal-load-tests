@@ -13,6 +13,7 @@ export function getConfig(): CONFIG {
   if (config == CONFIG.SPIKE.toString()) return CONFIG.SPIKE;
   if (config == CONFIG.STRESS.toString()) return CONFIG.STRESS;
   if (config == CONFIG.BREAKPOINT.toString()) return CONFIG.BREAKPOINT;
+  if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.DEBUG.toString()) return CONFIG.DEBUG;
   throw Error(`Invalid value for config '${config}'`);
 }
