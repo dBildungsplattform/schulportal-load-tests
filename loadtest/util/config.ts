@@ -5,6 +5,7 @@ export enum CONFIG {
   SPIKE = "spike",
   STRESS = "stress",
   BREAKPOINT = "breakpoint",
+  SOAK = "soak",
   DEBUG = "debug",
 }
 export function getConfig(): CONFIG {
@@ -12,6 +13,7 @@ export function getConfig(): CONFIG {
   if (config == CONFIG.SPIKE.toString()) return CONFIG.SPIKE;
   if (config == CONFIG.STRESS.toString()) return CONFIG.STRESS;
   if (config == CONFIG.BREAKPOINT.toString()) return CONFIG.BREAKPOINT;
+  if (config == CONFIG.SOAK.toString()) return CONFIG.SOAK;
   if (config == CONFIG.DEBUG.toString()) return CONFIG.DEBUG;
   throw Error(`Invalid value for config '${config}'`);
 }
@@ -47,6 +49,13 @@ export function getDefaultOptions() {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
           http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
         },
+      };
+    case CONFIG.SOAK:
+      return {
+        stages: [
+          { duration: "1m", target: maxVUs },
+          { duration: "10m", target: maxVUs }
+        ]
       };
     case CONFIG.DEBUG:
       return {
