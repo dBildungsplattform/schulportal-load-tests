@@ -74,6 +74,7 @@ export function makeHttpRequest(
   const url = `${backendUrl}${resource}${queryString}`;
   const response = request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
+    timeout: "70s",
     tags: {
       name: `${backendUrl}${resource}`,
       resource,
