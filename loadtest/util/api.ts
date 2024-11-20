@@ -55,7 +55,10 @@ export function removeQueryString(url: string): string {
 
 export function transformQueryToTag(pairs?: Array<string>): string {
   if (!pairs || pairs.length == 0) return "";
-  return pairs.map((p) => p.slice(0, p.indexOf("="))).join();
+  return pairs
+    .filter((p) => !p.endsWith("="))
+    .map((p) => p.slice(0, p.indexOf("=")))
+    .join();
 }
 
 export function makeHttpRequest(
