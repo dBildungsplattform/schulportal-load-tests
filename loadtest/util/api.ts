@@ -83,7 +83,7 @@ export function makeHttpRequest(
   if (response.error || response.error_code)
     console.error(
       {
-        url: response.url,
+        url: removeQueryString(response.url),
         status: response.status,
         statusText: response.status_text,
         headers: response.headers,
