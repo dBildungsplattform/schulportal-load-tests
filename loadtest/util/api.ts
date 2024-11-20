@@ -53,6 +53,11 @@ export function removeQueryString(url: string): string {
   return url.split("?")[0];
 }
 
+export function transformQueryToTag(pairs?: Array<string>): string {
+  if (!pairs || pairs.length == 0) return "";
+  return pairs.map((p) => p.slice(0, p.indexOf("="))).join();
+}
+
 export function makeHttpRequest(
   verb: "get" | "post" | "put" | "delete",
   resource: string,
@@ -69,10 +74,11 @@ export function makeHttpRequest(
     tags: {
       name: `${backendUrl}${resource}`,
       resource,
+      query: transformQueryToTag(options?.query),
     },
   });
   if (response.error || response.error_code)
-    prettyLog(
+    console.error(
       {
         url: response.url,
         status: response.status,
