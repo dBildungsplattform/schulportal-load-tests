@@ -62,7 +62,7 @@ for (const [key, role] of Object.entries(ROLE)) {
 export function getDefaultAdminMix(maxUsers?: number): UserMix {
   return new UserMix(
     {
-      // SYSADMIN: mapRoleToCount(ROLE.SYSADMIN),
+      SYSADMIN: mapRoleToCount(ROLE.SYSADMIN),
       LEIT: mapRoleToCount(ROLE.LEIT),
     },
     maxUsers,

@@ -82,24 +82,24 @@ function main(users = getDefaultAdminMix()) {
       emulateFilterReset();
     });
 
-    // group("filter list", () => {
-    //   const filters = [
-    //     personenuebersicht?.benutzername,
-    //     personenuebersicht?.vorname,
-    //     personenuebersicht?.nachname,
-    //   ];
-    //   for (const filter of filters) {
-    //     const personen = getPersonen([
-    //       "offset=0",
-    //       "limit=30",
-    //       `suchFilter=${filter}`,
-    //     ]);
-    //     const personIds = getPersonenIds(personen);
-    //     getPersonenUebersicht(personIds);
+    group("filter list", () => {
+      const filters = [
+        personenuebersicht?.benutzername,
+        personenuebersicht?.vorname,
+        personenuebersicht?.nachname,
+      ];
+      for (const filter of filters) {
+        const personen = getPersonen([
+          "offset=0",
+          "limit=30",
+          `suchFilter=${filter}`,
+        ]);
+        const personIds = getPersonenIds(personen);
+        getPersonenUebersicht(personIds);
 
-    //     emulateFilterReset();
-    //   }
-    // });
+        emulateFilterReset();
+      }
+    });
   });
 }
 
