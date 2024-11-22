@@ -1,12 +1,10 @@
 import { fail } from "k6";
 import { batch, BatchRequest } from "k6/http";
-import {
-  CreateOrganisationBodyParams,
-  DbiamCreatePersonWithPersonenkontexteBodyParams,
-  DBiamPersonResponse,
-  OrganisationsTyp,
-  RollenArt,
-} from "../api-client/generated/index.ts";
+import { CreateOrganisationBodyParams } from "../api-client/generated/models/CreateOrganisationBodyParams.ts";
+import { DbiamCreatePersonWithPersonenkontexteBodyParams } from "../api-client/generated/models/DbiamCreatePersonWithPersonenkontexteBodyParams.ts";
+import { DBiamPersonResponse } from "../api-client/generated/models/DBiamPersonResponse.ts";
+import { OrganisationsTyp } from "../api-client/generated/models/OrganisationsTyp.ts";
+import { RollenArt } from "../api-client/generated/models/RollenArt.ts";
 import { logout } from "../pages/index.ts";
 import { loginPage } from "../pages/login.ts";
 import {

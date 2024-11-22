@@ -1,8 +1,6 @@
-import {
-  DBiamPersonenuebersichtResponse,
-  FindRollenResponse,
-  OrganisationResponse,
-} from "../api-client/generated/index.ts";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse";
+import { FindRollenResponse } from "../api-client/generated/models/FindRollenResponse";
+import { OrganisationResponse } from "../api-client/generated/models/OrganisationResponse";
 import {
   getLoginInfo,
   getOrganisationen,

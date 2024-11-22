@@ -1,8 +1,6 @@
 import { check, group } from "k6";
-import {
-  OrganisationResponse,
-  OrganisationsTyp,
-} from "../api-client/generated/index.ts";
+import { OrganisationResponse } from "../api-client/generated/models/OrganisationResponse.ts";
+import { OrganisationsTyp } from "../api-client/generated/models/OrganisationsTyp.ts";
 import { logout } from "../pages/index.ts";
 import { userListPage } from "../pages/user-list.ts";
 import {
