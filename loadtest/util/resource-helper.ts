@@ -7,6 +7,8 @@ import {
   OrganisationsTyp,
   RollenArt,
 } from "../api-client/generated/index.ts";
+import { logout } from "../pages/index.ts";
+import { loginPage } from "../pages/login.ts";
 import {
   getAdministeredOrganisationenById,
   getOrganisationen,
@@ -14,14 +16,70 @@ import {
   getRollen,
   makeHttpRequest,
 } from "./api.ts";
-import { getBackendUrl } from "./config.ts";
+import { getBackendUrl, MAX_VUS } from "./config.ts";
 import { getRandomName, NAME_PREFIX } from "./data.ts";
+import { LoginData, UserMix, UserRatio } from "./users.ts";
 
 const orgParams: CreateOrganisationBodyParams = {
   name: `${NAME_PREFIX}-Test-Schule`,
   kennung: "1234567",
   typ: OrganisationsTyp.Schule,
 };
+
+export function createLogins(ratio: Partial<UserRatio>): Array<LoginData> {
+  if (!ratio) fail("no user ratio defined");
+  const testOrg = createAndFindTestOrg();
+  const { moeglicheRollen } = getRollen(["rolleName="]);
+  const requests: Array<BatchRequest> = [];
+  const befristung = new Date(Date.now() + 1000 * 60 * 60 * 4);
+  const requestedRoles = Object.keys(ratio) as Array<RollenArt>;
+  const rollen = requestedRoles
+    .map((rolle: RollenArt) =>
+      moeglicheRollen.find((r) => r.rollenart == rolle),
+    )
+    .filter((r) => r != undefined);
+  if (requestedRoles.length > rollen.length)
+    fail("mismatch between requested and possible roles");
+
+  const users = new UserMix(ratio);
+  while (requests.length < MAX_VUS) {
+    const rolle = rollen.find((r) => r.rollenart == users.getCurrentRole())!;
+    const creationParams: DbiamCreatePersonWithPersonenkontexteBodyParams = {
+      ...getRandomName(),
+      befristung: befristung,
+      createPersonenkontexte: [
+        {
+          organisationId: testOrg.id,
+          rolleId: rolle.id,
+        },
+      ],
+    };
+    const body = JSON.stringify(creationParams);
+    requests.push({
+      method: "POST",
+      url: `${getBackendUrl()}personenkontext-workflow`,
+      body,
+      params: {
+        headers: { "Content-Type": "application/json" },
+      },
+    });
+  }
+  console.log(`creating ${requests.length} users`);
+  const persons = batch(requests).map(
+    (r) => r.json() as unknown as DBiamPersonResponse,
+  );
+  logout();
+  const loginData: Array<LoginData> = [];
+  persons.forEach((person, index) => {
+    const username = person.person.referrer!;
+    const password = person.person.startpasswort;
+    const newPassword = password + index.toString();
+    loginPage.initialLogin({ username, password }, newPassword);
+    loginData.push({ username, password: newPassword });
+    logout();
+  });
+  return loginData;
+}
 
 export function createTestUsers(n: number): Array<string> {
   const creationStartTime = Date.now();
