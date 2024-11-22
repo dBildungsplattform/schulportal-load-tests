@@ -11,6 +11,23 @@ import {
   ResponseType,
   url,
 } from "k6/http";
+import { CreateOrganisationBodyParams } from "../api-client/generated/models/CreateOrganisationBodyParams";
+import { DbiamCreatePersonWithPersonenkontexteBodyParams } from "../api-client/generated/models/DbiamCreatePersonWithPersonenkontexteBodyParams";
+import { DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response } from "../api-client/generated/models/DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse";
+import { DBiamPersonResponse } from "../api-client/generated/models/DBiamPersonResponse";
+import { FindRollenResponse } from "../api-client/generated/models/FindRollenResponse";
+import { LockUserBodyParams } from "../api-client/generated/models/LockUserBodyParams";
+import { OrganisationResponse } from "../api-client/generated/models/OrganisationResponse";
+import { ParentOrganisationenResponse } from "../api-client/generated/models/ParentOrganisationenResponse";
+import { PersonendatensatzResponse } from "../api-client/generated/models/PersonendatensatzResponse";
+import { PersonenkontextWorkflowResponse } from "../api-client/generated/models/PersonenkontextWorkflowResponse";
+import { PersonFrontendControllerFindPersons200Response } from "../api-client/generated/models/PersonFrontendControllerFindPersons200Response";
+import { PersonInfoResponse } from "../api-client/generated/models/PersonInfoResponse";
+import { ServiceProviderResponse } from "../api-client/generated/models/ServiceProviderResponse";
+import { TokenRequiredResponse } from "../api-client/generated/models/TokenRequiredResponse";
+import { TokenStateResponse } from "../api-client/generated/models/TokenStateResponse";
+import { UserinfoResponse } from "../api-client/generated/models/UserinfoResponse";
 import {
   defaultHttpCheck,
   defaultTimingCheck,
@@ -19,23 +36,6 @@ import {
 import { getBackendUrl } from "./config.ts";
 import { getFutureDate, NAME_PREFIX } from "./data.ts";
 import { prettyLog } from "./debug.ts";
-import { UserinfoResponse } from "../api-client/generated/models/UserinfoResponse";
-import { ServiceProviderResponse } from "../api-client/generated/models/ServiceProviderResponse";
-import { OrganisationResponse } from "../api-client/generated/models/OrganisationResponse";
-import { ParentOrganisationenResponse } from "../api-client/generated/models/ParentOrganisationenResponse";
-import { CreateOrganisationBodyParams } from "../api-client/generated/models/CreateOrganisationBodyParams";
-import { PersonFrontendControllerFindPersons200Response } from "../api-client/generated/models/PersonFrontendControllerFindPersons200Response";
-import { PersonendatensatzResponse } from "../api-client/generated/models/PersonendatensatzResponse";
-import { PersonInfoResponse } from "../api-client/generated/models/PersonInfoResponse";
-import { DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response } from "../api-client/generated/models/DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response";
-import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse";
-import { FindRollenResponse } from "../api-client/generated/models/FindRollenResponse";
-import { PersonenkontextWorkflowResponse } from "../api-client/generated/models/PersonenkontextWorkflowResponse";
-import { DbiamCreatePersonWithPersonenkontexteBodyParams } from "../api-client/generated/models/DbiamCreatePersonWithPersonenkontexteBodyParams";
-import { DBiamPersonResponse } from "../api-client/generated/models/DBiamPersonResponse";
-import { TokenRequiredResponse } from "../api-client/generated/models/TokenRequiredResponse";
-import { TokenStateResponse } from "../api-client/generated/models/TokenStateResponse";
-import { LockUserBodyParams } from "../api-client/generated/models/LockUserBodyParams";
 
 const backendUrl = getBackendUrl();
 
