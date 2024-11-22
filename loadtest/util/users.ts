@@ -1,5 +1,5 @@
 import { SharedArray } from "k6/data";
-import { RollenArt } from "../api-client/generated/index.ts";
+import { RollenArt } from "../api-client/generated/models/RollenArt.ts";
 
 const DATAPATH = "../data/users.json";
 
