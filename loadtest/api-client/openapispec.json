@@ -1546,6 +1546,65 @@
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
       }
     },
+    "/api/organisationen/{organisationId}/enable-for-its-learning": {
+      "put": {
+        "operationId": "OrganisationController_enableForitslearning",
+        "parameters": [
+          {
+            "name": "organisationId",
+            "required": true,
+            "in": "path",
+            "description": "The id of an organization",
+            "schema": { "nullable": false, "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The organization was successfully enabled for itslearning.",
+            "headers": {
+              "X-Paging-Offset": {
+                "description": "The offset of the first item from the list. List starts with index 0."
+              },
+              "X-Paging-Limit": {
+                "description": "The maximum amount of items returned in one request."
+              },
+              "X-Paging-Total": {
+                "description": "The total amount of items in the list."
+              },
+              "X-Paging-pageTotal": {
+                "description": "The total amount of items in the paginated list."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganisationResponseLegacy"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The organisation could not be modified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DbiamOrganisationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to modify the organisation."
+          },
+          "403": { "description": "Not permitted to modify the organisation." },
+          "500": {
+            "description": "Internal server error while modifying the organisation."
+          }
+        },
+        "tags": ["organisationen"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
     "/api/rolle": {
       "get": {
         "operationId": "RolleController_findRollen",
@@ -1633,7 +1692,14 @@
               }
             }
           },
-          "400": { "description": "The input was not valid." },
+          "400": {
+            "description": "The input was not valid.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DbiamRolleError" }
+              }
+            }
+          },
           "401": { "description": "Not authorized to create the rolle." },
           "403": {
             "description": "Insufficient permissions to create the rolle."
@@ -2891,6 +2957,28 @@
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
       }
     },
+    "/api/cron/unlock": {
+      "put": {
+        "operationId": "CronController_unlockUsersWithExpiredLocks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The users were successfully unlocked.",
+            "content": {
+              "application/json": { "schema": { "type": "boolean" } }
+            }
+          },
+          "401": { "description": "Not authorized to unlock users." },
+          "403": { "description": "Insufficient permissions to unlock users." },
+          "404": { "description": "Insufficient permissions to unlock users." },
+          "500": {
+            "description": "Internal server error while trying to unlock users."
+          }
+        },
+        "tags": ["cron"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
     "/api/import/upload": {
       "post": {
         "operationId": "ImportController_uploadFile",
@@ -3012,6 +3100,14 @@
         },
         "tags": ["import"],
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "StatusController_getStatus",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["status"]
       }
     }
   },
@@ -3281,7 +3377,8 @@
           "organisation": {
             "$ref": "#/components/schemas/CreatedPersonenkontextOrganisation"
           },
-          "roleName": { "type": "string", "nullable": true },
+          "rollenart": { "type": "string", "nullable": true },
+          "rollenname": { "type": "string", "nullable": true },
           "personenstatus": {
             "type": "string",
             "enum": ["AKTIV"],
@@ -3319,7 +3416,8 @@
           "referrer",
           "mandant",
           "organisation",
-          "roleName",
+          "rollenart",
+          "rollenname",
           "personenstatus",
           "jahrgangsstufe",
           "sichtfreigabe",
@@ -3561,7 +3659,12 @@
             "$ref": "#/components/schemas/Vertrauensstufe"
           },
           "revision": { "type": "string" },
-          "personalnummer": { "type": "string", "nullable": true }
+          "personalnummer": { "type": "string", "nullable": true },
+          "dienststellen": {
+            "nullable": true,
+            "type": "array",
+            "items": { "type": "string" }
+          }
         },
         "required": [
           "id",
@@ -3574,7 +3677,8 @@
           "lokalisierung",
           "vertrauensstufe",
           "revision",
-          "personalnummer"
+          "personalnummer",
+          "dienststellen"
         ]
       },
       "PersonInfoResponse": {
@@ -3628,6 +3732,7 @@
           "kuerzel": { "type": "string" },
           "typ": { "$ref": "#/components/schemas/OrganisationsTyp" },
           "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" },
+          "itslearningEnabled": { "type": "boolean" },
           "version": { "type": "number" }
         },
         "required": [
@@ -3639,6 +3744,7 @@
           "kuerzel",
           "typ",
           "traegerschaft",
+          "itslearningEnabled",
           "version"
         ]
       },
@@ -3913,6 +4019,28 @@
           "version"
         ]
       },
+      "DbiamRolleError": {
+        "type": "object",
+        "properties": {
+          "i18nKey": {
+            "type": "string",
+            "enum": [
+              "ROLLE_ERROR",
+              "ADD_SYSTEMRECHT_ERROR",
+              "ROLLE_HAT_PERSONENKONTEXTE_ERROR",
+              "UPDATE_MERKMALE_ERROR",
+              "ROLLENNAME_ENTHAELT_LEERZEICHEN",
+              "NEWER_VERSION_OF_ROLLE_AVAILABLE",
+              "ROLLE_NAME_UNIQUE_ON_SSK"
+            ]
+          },
+          "code": {
+            "type": "number",
+            "description": "Corresponds to HTTP Status code like 200, 404, 500"
+          }
+        },
+        "required": ["i18nKey", "code"]
+      },
       "AddSystemrechtBodyParams": {
         "type": "object",
         "properties": {
@@ -4008,27 +4136,6 @@
           "serviceProviderIds",
           "version"
         ]
-      },
-      "DbiamRolleError": {
-        "type": "object",
-        "properties": {
-          "i18nKey": {
-            "type": "string",
-            "enum": [
-              "ROLLE_ERROR",
-              "ADD_SYSTEMRECHT_ERROR",
-              "ROLLE_HAT_PERSONENKONTEXTE_ERROR",
-              "UPDATE_MERKMALE_ERROR",
-              "ROLLENNAME_ENTHAELT_LEERZEICHEN",
-              "NEWER_VERSION_OF_ROLLE_AVAILABLE"
-            ]
-          },
-          "code": {
-            "type": "number",
-            "description": "Corresponds to HTTP Status code like 200, 404, 500"
-          }
-        },
-        "required": ["i18nKey", "code"]
       },
       "PersonResponseAutomapper": {
         "type": "object",
@@ -4502,7 +4609,8 @@
               "CSV_PARSING_ERROR",
               "CSV_FILE_EMPTY_ERROR",
               "IMPORT_TEXT_FILE_CREATION_ERROR",
-              "IMPORT_NUR_LERN_AN_SCHULE_ERROR"
+              "IMPORT_NUR_LERN_AN_SCHULE_ERROR",
+              "CSV_FILE_INVALID_HEADER_ERROR"
             ]
           },
           "code": {

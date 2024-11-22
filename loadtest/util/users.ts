@@ -1,6 +1,5 @@
 import { SharedArray } from "k6/data";
 import { RollenArt } from "../api-client/generated/index.ts";
-import { prettyLog } from "./debug.ts";
 
 const DATAPATH = "../data/users.json";
 
