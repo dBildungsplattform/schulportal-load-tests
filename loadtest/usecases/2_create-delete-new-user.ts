@@ -1,4 +1,4 @@
-import { group, sleep } from "k6";
+import { check, group, sleep } from "k6";
 import { logout } from "../pages/index.ts";
 import { UserDetailsPage } from "../pages/user-details.ts";
 import { userListPage } from "../pages/user-list.ts";
@@ -92,6 +92,11 @@ function main(users = getDefaultAdminMix()) {
       body.personalnummer = "1237562";
     }
     return postPersonenkontextWorkflow(body);
+  });
+
+  check(createdPerson, {
+    "created person": (v) => v.person != undefined,
+    "created kontexte": (v) => v.dBiamPersonenkontextResponses.length > 0,
   });
 
   group("navigate back", () => {
