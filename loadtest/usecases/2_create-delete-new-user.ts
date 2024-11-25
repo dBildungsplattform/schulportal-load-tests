@@ -95,8 +95,8 @@ function main(users = getDefaultAdminMix()) {
   });
 
   check(createdPerson, {
-    "created person": (v) => v.person != undefined,
-    "created kontexte": (v) => v.dBiamPersonenkontextResponses.length > 0,
+    "created person": (v) => v?.person != undefined,
+    "created kontexte": (v) => v?.dBiamPersonenkontextResponses.length > 0,
   });
 
   group("navigate back", () => {
