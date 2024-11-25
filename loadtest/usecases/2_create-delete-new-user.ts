@@ -1,4 +1,5 @@
-import { check, group, sleep } from "k6";
+import { check, fail, group, sleep } from "k6";
+import { RollenArt } from "../api-client/generated/index.ts";
 import { logout } from "../pages/index.ts";
 import { UserDetailsPage } from "../pages/user-details.ts";
 import { userListPage } from "../pages/user-list.ts";
@@ -10,7 +11,12 @@ import {
   postPersonenkontextWorkflow,
 } from "../util/api.ts";
 import { getDefaultOptions } from "../util/config.ts";
-import { getFutureDate, getRandomName, pickRandomItem } from "../util/data.ts";
+import {
+  getFutureDate,
+  getRandomName,
+  getRandomPersNummer,
+  pickRandomItem,
+} from "../util/data.ts";
 import { goToUserList, login } from "../util/page.ts";
 import { deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
@@ -20,16 +26,18 @@ export const options = {
   ...getDefaultOptions(),
 };
 
+const admin = new UserMix({ SYSADMIN: 1 });
+
 export function teardown() {
-  const admin = new UserMix({ SYSADMIN: 1 });
   login(admin.getLogin());
   deleteAllTestUsers();
   logout();
 }
 
 export default wrapTestFunction(main);
+const users = getDefaultAdminMix();
 
-function main(users = getDefaultAdminMix()) {
+function main() {
   goToUserList(users.getLogin());
 
   group("load page", () => {
@@ -37,20 +45,7 @@ function main(users = getDefaultAdminMix()) {
   });
 
   const createdPerson = group("go through creation workflow", () => {
-    const { organisations } = getPersonenkontextWorkflowStep(["limit=25"]);
-    const organisation = pickRandomItem(organisations);
-    typeIntoAutocomplete(organisation.name, (name) => {
-      getPersonenkontextWorkflowStep([`organisationName=${name}`, "limit=25"]);
-      sleep(0.1);
-    });
-    const klassen = getAdministeredOrganisationenById(organisation.id);
-    const { rollen } = getPersonenkontextWorkflowStep([
-      `organisationId=${organisation.id}`,
-      "limit=25",
-    ]);
-    const rolle = pickRandomItem(
-      rollen.filter((r) => r.name === "LiV" || r.name === "SuS"),
-    );
+    const { organisation, rolle, klasse } = getParams();
     typeIntoAutocomplete(rolle.name, (name) => {
       getPersonenkontextWorkflowStep([
         `organisationId=${organisation.id}`,
@@ -75,9 +70,7 @@ function main(users = getDefaultAdminMix()) {
         },
       ],
     };
-    let klasse: { id: string; name: string } | null = null;
-    if (rolle.name === "SuS") {
-      klasse = pickRandomItem(klassen);
+    if (rolle.rollenart === RollenArt.Lern) {
       typeIntoAutocomplete(klasse.name, (name) => {
         getAdministeredOrganisationenById(organisation.id, [
           `searchFilter=${name}`,
@@ -89,14 +82,14 @@ function main(users = getDefaultAdminMix()) {
         rolleId: rolle.id,
       });
     } else {
-      body.personalnummer = "1237562";
+      body.personalnummer = getRandomPersNummer();
     }
     return postPersonenkontextWorkflow(body);
   });
 
   check(createdPerson, {
     "created person": (v) => v?.person != undefined,
-    "created kontexte": (v) => v?.dBiamPersonenkontextResponses.length > 0,
+    "created kontexte": (v) => v?.dBiamPersonenkontextResponses?.length > 0,
   });
 
   group("navigate back", () => {
@@ -113,4 +106,35 @@ function typeIntoAutocomplete(name: string, callback: (name: string) => void) {
   for (let characters = 1; characters < name.length; characters++) {
     callback(name.slice(0, characters));
   }
+}
+
+// assumes that there is at least one valid org in organisations
+function getParams() {
+  const { organisations } = getPersonenkontextWorkflowStep(["limit=25"]);
+  for (let index = 0; index < organisations.length; index++) {
+    const organisation = pickRandomItem(organisations);
+    typeIntoAutocomplete(organisation.name, (name) => {
+      getPersonenkontextWorkflowStep([`organisationName=${name}`, "limit=25"]);
+      sleep(0.1);
+    });
+    const klassen = getAdministeredOrganisationenById(organisation.id);
+    const { rollen } = getPersonenkontextWorkflowStep([
+      `organisationId=${organisation.id}`,
+      "limit=25",
+    ]);
+
+    if (klassen.length == 0 || rollen.length == 0) continue;
+
+    const rolle = pickRandomItem(
+      rollen.filter(
+        (r) => r.rollenart === RollenArt.Lehr || r.rollenart === RollenArt.Lern,
+      ),
+    );
+    const klasse = pickRandomItem(klassen);
+
+    if (!klasse || !rolle) continue;
+
+    return { organisation, rolle, klasse };
+  }
+  fail("no org for user creation found");
 }
