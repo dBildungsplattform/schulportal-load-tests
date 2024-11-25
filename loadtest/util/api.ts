@@ -66,10 +66,13 @@ export function makeHttpRequest(
     query: Array<string>;
     body: RequestBody;
     params: RefinedParams<ResponseType | undefined>;
+    url: ReturnType<typeof url>;
   }>,
 ) {
   const queryString = options?.query ? makeQueryString(options.query) : "";
-  const url = `${backendUrl}${resource}${queryString}`;
+  const url = options?.url
+    ? options.url
+    : `${backendUrl}${resource}${queryString}`;
   const response = request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
     timeout: "70s",
@@ -223,7 +226,9 @@ export function getPersonInfo(query?: Array<string>) {
 }
 
 export function deletePersonById(id: string) {
-  const response = makeHttpRequest("delete", `personen/${id}`);
+  const response = makeHttpRequest("delete", `personen/${id}`, {
+    url: url`${backendUrl}personen/${id}`,
+  });
   check(response, {
     "got expected status": getStatusChecker(204),
     ...defaultTimingCheck,
