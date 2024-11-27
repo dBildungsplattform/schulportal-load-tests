@@ -8,7 +8,7 @@ on:
         description: "Branch to take test code and helm/cron setup from"
         required: false
         type: string
-        default: main
+        default: SPSH-1371
       branch_img:
         description: "Branch to take Dockerfile/img from"
         required: false
@@ -23,7 +23,7 @@ on:
         description: "sets CONFIG env var used as k6 input"
         required: false
         type: string
-        default: "debug"
+        default: "plateau"
       max_vus:
         description: "sets the maximum number of virtual users"
         required: false
@@ -33,7 +33,7 @@ on:
         description: "name of test scenario defined in values.yaml"
         type: string
         required: true
-        default: dev-scenario
+        default: current
       execute:
         description: "execute cronjob scenario after install"
         type: boolean

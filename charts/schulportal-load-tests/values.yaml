@@ -8,7 +8,7 @@ max_vus: "10"
 
 cronjobs:
   current:
-    serviceName: current
+    serviceName: spsh-1371
     spsh_base: "https://spsh-1371.dev.spsh.dbildungsplattform.de"
   dev-scenario:
     serviceName: dev-scenario
