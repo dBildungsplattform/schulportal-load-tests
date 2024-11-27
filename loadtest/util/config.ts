@@ -4,6 +4,7 @@ export const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
 export enum CONFIG {
   SPIKE = "spike",
   STRESS = "stress",
+  PLATEAU = "plateau",
   BREAKPOINT = "breakpoint",
   DEBUG = "debug",
 }
@@ -11,6 +12,7 @@ export function getConfig(): CONFIG {
   const config = __ENV["CONFIG"];
   if (config == CONFIG.SPIKE.toString()) return CONFIG.SPIKE;
   if (config == CONFIG.STRESS.toString()) return CONFIG.STRESS;
+  if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.BREAKPOINT.toString()) return CONFIG.BREAKPOINT;
   if (config == CONFIG.DEBUG.toString()) return CONFIG.DEBUG;
   throw Error(`Invalid value for config '${config}'`);
@@ -38,6 +40,14 @@ export function getDefaultOptions() {
           { duration: "1m", target: Math.round(maxVUs * 0.8) }, // ramp down 1
           { duration: "1m", target: Math.round(maxVUs * 0.5) }, // ramp down 2
           { duration: "1m", target: 0 }, // ramp down 3
+        ],
+      };
+    case CONFIG.PLATEAU:
+      return {
+        stages: [
+          { duration: "1m", target: maxVUs }, // ramp up
+          { duration: "5m", target: maxVUs }, // plateau
+          { duration: "1m", target: 0 }, // ramp down
         ],
       };
     case CONFIG.BREAKPOINT:
