@@ -52,7 +52,7 @@ export function getDefaultOptions() {
       };
     case CONFIG.BREAKPOINT:
       return {
-        stages: [{ duration: "10m", target: 10 * maxVUs }],
+        stages: [{ duration: "10m", target: maxVUs }],
         thresholds: {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
           http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
