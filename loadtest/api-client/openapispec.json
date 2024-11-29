@@ -1546,6 +1546,65 @@
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
       }
     },
+    "/api/organisationen/{organisationId}/enable-for-its-learning": {
+      "put": {
+        "operationId": "OrganisationController_enableForitslearning",
+        "parameters": [
+          {
+            "name": "organisationId",
+            "required": true,
+            "in": "path",
+            "description": "The id of an organization",
+            "schema": { "nullable": false, "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The organization was successfully enabled for itslearning.",
+            "headers": {
+              "X-Paging-Offset": {
+                "description": "The offset of the first item from the list. List starts with index 0."
+              },
+              "X-Paging-Limit": {
+                "description": "The maximum amount of items returned in one request."
+              },
+              "X-Paging-Total": {
+                "description": "The total amount of items in the list."
+              },
+              "X-Paging-pageTotal": {
+                "description": "The total amount of items in the paginated list."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganisationResponseLegacy"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The organisation could not be modified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DbiamOrganisationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to modify the organisation."
+          },
+          "403": { "description": "Not permitted to modify the organisation." },
+          "500": {
+            "description": "Internal server error while modifying the organisation."
+          }
+        },
+        "tags": ["organisationen"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
     "/api/rolle": {
       "get": {
         "operationId": "RolleController_findRollen",
@@ -1633,7 +1692,14 @@
               }
             }
           },
-          "400": { "description": "The input was not valid." },
+          "400": {
+            "description": "The input was not valid.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DbiamRolleError" }
+              }
+            }
+          },
           "401": { "description": "Not authorized to create the rolle." },
           "403": {
             "description": "Insufficient permissions to create the rolle."
@@ -2891,6 +2957,28 @@
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
       }
     },
+    "/api/cron/unlock": {
+      "put": {
+        "operationId": "CronController_unlockUsersWithExpiredLocks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The users were successfully unlocked.",
+            "content": {
+              "application/json": { "schema": { "type": "boolean" } }
+            }
+          },
+          "401": { "description": "Not authorized to unlock users." },
+          "403": { "description": "Insufficient permissions to unlock users." },
+          "404": { "description": "Insufficient permissions to unlock users." },
+          "500": {
+            "description": "Internal server error while trying to unlock users."
+          }
+        },
+        "tags": ["cron"],
+        "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
     "/api/import/upload": {
       "post": {
         "operationId": "ImportController_uploadFile",
@@ -3012,6 +3100,14 @@
         },
         "tags": ["import"],
         "security": [{ "oauth2": ["openid"] }, { "bearer": [] }]
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "StatusController_getStatus",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["status"]
       }
     }
   },
@@ -3161,9 +3257,16 @@
           "personId": { "type": "string", "nullable": true },
           "locked_by": { "type": "string", "nullable": true },
           "created_at": { "type": "string", "nullable": true },
-          "locked_until": { "type": "string", "nullable": true }
+          "locked_until": { "type": "string", "nullable": true },
+          "lock_occasion": { "type": "string", "nullable": true }
         },
-        "required": ["personId", "locked_by", "created_at", "locked_until"]
+        "required": [
+          "personId",
+          "locked_by",
+          "created_at",
+          "locked_until",
+          "lock_occasion"
+        ]
       },
       "EmailAddressStatus": {
         "type": "string",
@@ -3204,7 +3307,8 @@
           "isLocked": { "type": "boolean", "nullable": true },
           "userLock": {
             "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/UserLockParams" }]
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserLockParams" }
           },
           "lastModified": {
             "format": "date-time",
@@ -3273,7 +3377,8 @@
           "organisation": {
             "$ref": "#/components/schemas/CreatedPersonenkontextOrganisation"
           },
-          "roleName": { "type": "string", "nullable": true },
+          "rollenart": { "type": "string", "nullable": true },
+          "rollenname": { "type": "string", "nullable": true },
           "personenstatus": {
             "type": "string",
             "enum": ["AKTIV"],
@@ -3311,7 +3416,8 @@
           "referrer",
           "mandant",
           "organisation",
-          "roleName",
+          "rollenart",
+          "rollenname",
           "personenstatus",
           "jahrgangsstufe",
           "sichtfreigabe",
@@ -3553,7 +3659,12 @@
             "$ref": "#/components/schemas/Vertrauensstufe"
           },
           "revision": { "type": "string" },
-          "personalnummer": { "type": "string", "nullable": true }
+          "personalnummer": { "type": "string", "nullable": true },
+          "dienststellen": {
+            "nullable": true,
+            "type": "array",
+            "items": { "type": "string" }
+          }
         },
         "required": [
           "id",
@@ -3566,7 +3677,8 @@
           "lokalisierung",
           "vertrauensstufe",
           "revision",
-          "personalnummer"
+          "personalnummer",
+          "dienststellen"
         ]
       },
       "PersonInfoResponse": {
@@ -3578,9 +3690,14 @@
             "type": "array",
             "items": { "$ref": "#/components/schemas/PersonenkontextResponse" }
           },
-          "gruppen": { "type": "array", "items": { "type": "string" } }
+          "gruppen": { "type": "array", "items": { "type": "string" } },
+          "email": {
+            "nullable": true,
+            "description": "Contains status and address. Returns email-address verified by OX (enabled) if available, otherwise returns most recently updated one (no prioritized status)",
+            "allOf": [{ "$ref": "#/components/schemas/PersonEmailResponse" }]
+          }
         },
-        "required": ["pid", "person", "personenkontexte", "gruppen"]
+        "required": ["pid", "person", "personenkontexte", "gruppen", "email"]
       },
       "TraegerschaftTyp": {
         "type": "string",
@@ -3614,7 +3731,9 @@
           "namensergaenzung": { "type": "string", "nullable": true },
           "kuerzel": { "type": "string" },
           "typ": { "$ref": "#/components/schemas/OrganisationsTyp" },
-          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" }
+          "traegerschaft": { "$ref": "#/components/schemas/TraegerschaftTyp" },
+          "itslearningEnabled": { "type": "boolean" },
+          "version": { "type": "number" }
         },
         "required": [
           "id",
@@ -3624,7 +3743,9 @@
           "namensergaenzung",
           "kuerzel",
           "typ",
-          "traegerschaft"
+          "traegerschaft",
+          "itslearningEnabled",
+          "version"
         ]
       },
       "DbiamOrganisationError": {
@@ -3648,7 +3769,8 @@
               "NAME_REQUIRED_FOR_KLASSE",
               "NAME_ENTHAELT_LEERZEICHEN",
               "KENNUNG_ENTHAELT_LEERZEICHEN",
-              "EMAIL_ADRESS_ON_ORGANISATION_TYP"
+              "EMAIL_ADRESS_ON_ORGANISATION_TYP",
+              "NEWER_VERSION_ORGANISATION"
             ]
           },
           "code": {
@@ -3720,6 +3842,7 @@
           "MIGRATION_DURCHFUEHREN",
           "PERSON_SYNCHRONISIEREN",
           "CRON_DURCHFUEHREN",
+          "PERSONEN_ANLEGEN",
           "IMPORT_DURCHFUEHREN"
         ]
       },
@@ -3736,8 +3859,14 @@
       },
       "OrganisationByNameBodyParams": {
         "type": "object",
-        "properties": { "name": { "type": "string" } },
-        "required": ["name"]
+        "properties": {
+          "name": { "type": "string" },
+          "version": {
+            "type": "number",
+            "description": "The version for the organisation."
+          }
+        },
+        "required": ["name", "version"]
       },
       "OrganisationResponseLegacy": {
         "type": "object",
@@ -3890,6 +4019,28 @@
           "version"
         ]
       },
+      "DbiamRolleError": {
+        "type": "object",
+        "properties": {
+          "i18nKey": {
+            "type": "string",
+            "enum": [
+              "ROLLE_ERROR",
+              "ADD_SYSTEMRECHT_ERROR",
+              "ROLLE_HAT_PERSONENKONTEXTE_ERROR",
+              "UPDATE_MERKMALE_ERROR",
+              "ROLLENNAME_ENTHAELT_LEERZEICHEN",
+              "NEWER_VERSION_OF_ROLLE_AVAILABLE",
+              "ROLLE_NAME_UNIQUE_ON_SSK"
+            ]
+          },
+          "code": {
+            "type": "number",
+            "description": "Corresponds to HTTP Status code like 200, 404, 500"
+          }
+        },
+        "required": ["i18nKey", "code"]
+      },
       "AddSystemrechtBodyParams": {
         "type": "object",
         "properties": {
@@ -3985,27 +4136,6 @@
           "serviceProviderIds",
           "version"
         ]
-      },
-      "DbiamRolleError": {
-        "type": "object",
-        "properties": {
-          "i18nKey": {
-            "type": "string",
-            "enum": [
-              "ROLLE_ERROR",
-              "ADD_SYSTEMRECHT_ERROR",
-              "ROLLE_HAT_PERSONENKONTEXTE_ERROR",
-              "UPDATE_MERKMALE_ERROR",
-              "ROLLENNAME_ENTHAELT_LEERZEICHEN",
-              "NEWER_VERSION_OF_ROLLE_AVAILABLE"
-            ]
-          },
-          "code": {
-            "type": "number",
-            "description": "Corresponds to HTTP Status code like 200, 404, 500"
-          }
-        },
-        "required": ["i18nKey", "code"]
       },
       "PersonResponseAutomapper": {
         "type": "object",
@@ -4479,7 +4609,8 @@
               "CSV_PARSING_ERROR",
               "CSV_FILE_EMPTY_ERROR",
               "IMPORT_TEXT_FILE_CREATION_ERROR",
-              "IMPORT_NUR_LERN_AN_SCHULE_ERROR"
+              "IMPORT_NUR_LERN_AN_SCHULE_ERROR",
+              "CSV_FILE_INVALID_HEADER_ERROR"
             ]
           },
           "code": {

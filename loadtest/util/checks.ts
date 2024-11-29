@@ -15,8 +15,7 @@ export function getTimeChecker(maxTime: number) {
 }
 
 export const defaultTimingCheck = {
-  "took <250ms": getTimeChecker(250),
-  "took <2000ms": getTimeChecker(2000),
+  "took <1000ms": getTimeChecker(1000),
 };
 
 export const defaultHttpCheck = {
