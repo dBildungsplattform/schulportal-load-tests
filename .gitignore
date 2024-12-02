@@ -130,5 +130,4 @@ dist
 .pnp.*
 
 loadtest/data/users.json
-loadtest/api-client/generated/
 output/

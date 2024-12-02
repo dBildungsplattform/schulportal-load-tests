@@ -14,12 +14,10 @@ cronjobs:
     serviceName: dev-scenario
     spsh_base: "https://main.dev.spsh.dbildungsplattform.de"
     kc_base: "kc_base"
-    # jobsParallelism: not used yet but available? test it
   staging-scenario:
     serviceName: staging-scenario
     spsh_base: "https://spsh.staging.spsh.dbildungsplattform.de"
     kc_base: "https://keycloak.staging.spsh.dbildungsplattform.de"
-  # prod-scenario:
-  #   serviceName: prod-scenario
-  #   image: ghcr.io/dbildungsplattform/schulportal-load-tests:latest
-  #   environment: spsh.dbildungsplattform.de
+  prod-scenario:
+    serviceName: prod-scenario
+    spsh_base: "https://spsh.dbildungsplattform.de"

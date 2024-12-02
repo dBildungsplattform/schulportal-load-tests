@@ -6,6 +6,7 @@ export enum CONFIG {
   STRESS = "stress",
   PLATEAU = "plateau",
   BREAKPOINT = "breakpoint",
+  PLATEAU = "plateau",
   DEBUG = "debug",
 }
 export function getConfig(): CONFIG {
@@ -14,6 +15,7 @@ export function getConfig(): CONFIG {
   if (config == CONFIG.STRESS.toString()) return CONFIG.STRESS;
   if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.BREAKPOINT.toString()) return CONFIG.BREAKPOINT;
+  if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.DEBUG.toString()) return CONFIG.DEBUG;
   throw Error(`Invalid value for config '${config}'`);
 }
@@ -57,6 +59,17 @@ export function getDefaultOptions() {
           http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
           http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
         },
+      };
+    case CONFIG.PLATEAU:
+      return {
+        stages: [
+          // ramp up
+          { duration: "1m", target: maxVUs },
+          // plateau
+          { duration: "5m", target: maxVUs },
+          // ramp down
+          { duration: "1m", target: 0 },
+        ],
       };
     case CONFIG.DEBUG:
       return {
