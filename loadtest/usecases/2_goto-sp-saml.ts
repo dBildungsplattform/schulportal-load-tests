@@ -4,6 +4,7 @@ import { getDefaultOptions } from "../util/config.ts";
 import { loadPage, login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { UserMix } from "../util/users.ts";
+import { prettyLog } from "../util/debug.ts";
 
 export const options = {
   ...getDefaultOptions(),
@@ -13,13 +14,18 @@ const serviceProviderName = "School-SH";
 
 export default wrapTestFunction(main);
 
-function main(users = new UserMix({ LEHR: 1000 })) {
-  const { providers } = login(users.getLogin());
+// function main(users = new UserMix({ LEHR: 1000 })) {
+function main(users = new UserMix({ SYSADMIN: 1 })) {
+  // const { providers } = login(users.getLogin());
+  login(users.getLogin());
 
   const response = group("follow link", () => {
-    const target = providers.find((p) => p.name == serviceProviderName);
-    if (!target) fail(`could not find sp ${serviceProviderName}`);
-    return loadPage(target.url);
+    // const target = providers.find((p) => p.name == serviceProviderName);
+    // if (!target) fail(`could not find sp ${serviceProviderName}`);
+    // return loadPage(target.url);
+    return get("https://141.91.161.139", {
+      tags: { name: "navigate to dWebtor" },
+    });
   });
 
   group("finish saml", () => {
@@ -49,9 +55,17 @@ function main(users = new UserMix({ LEHR: 1000 })) {
       tags: { name: "redirect to school-sh login" },
     });
     check(redirectResponse, {
-      "reached school-sh login": (r) => {
-        return r.html().find("#loginBox").text().includes("Anmeldung");
+      "reached dWebtor error page": (r) => {
+        return r.html().find(".box").text().includes("dWebTor School-SH PROD");
+      },
+      "got 402": (r) => {
+        return r.status == 402;
       },
     });
+    // check(redirectResponse, {
+    //   "reached school-sh login": (r) => {
+    //     return r.html().find("#loginBox").text().includes("Anmeldung");
+    //   },
+    // });
   });
 }

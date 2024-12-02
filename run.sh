@@ -29,7 +29,7 @@ for uc in loadtest/usecases/*; do
     if [[ "$uc" =~ $PATTERN ]]; then
         filename=${uc##*/}
         # compatibility-mode for typescript
-        options="--compatibility-mode=experimental_enhanced"
+        options="--compatibility-mode=experimental_enhanced --insecure-skip-tls-verify"
 
         # for localhost
         if [[ "$IS_LOCAL" -eq 0 ]]; then
