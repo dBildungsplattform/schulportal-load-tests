@@ -29,13 +29,17 @@ function main(users = new UserMix({ SYSADMIN: 1 })) {
   });
 
   group("finish saml", () => {
-    let submissionResponse = response.submitForm();
+    let submissionResponse = response.submitForm({
+      params: { tags: { name: "post to kc" } },
+    });
     check(submissionResponse, {
       "post to kc succeeded": (r) => r.status == 200,
     });
-    submissionResponse = submissionResponse.submitForm();
+    submissionResponse = submissionResponse.submitForm({
+      params: { tags: { name: "post to gateway" } },
+    });
     check(submissionResponse, {
-      "post to school-sh succeeded": (r) => r.status == 200,
+      "post to gateway succeeded": (r) => r.status == 200,
     });
 
     const stringifiedBody = submissionResponse.body?.toString();
