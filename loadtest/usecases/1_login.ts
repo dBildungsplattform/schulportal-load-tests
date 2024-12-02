@@ -21,21 +21,22 @@ export const options = {
   setupTimeout: "180s",
 };
 const admin = new UserMix({ SYSADMIN: 1 });
-export function setup() {
-  login(admin.getLogin());
-  deleteAllTestUsers();
-  const users = createLogins({ LEHR: 100 });
-  logout();
-  return { users };
-}
-export function teardown() {
-  login(admin.getLogin());
-  deleteAllTestUsers();
-  logout();
-}
+const user = admin.getLogin();
+// export function setup() {
+//   login(admin.getLogin());
+//   deleteAllTestUsers();
+//   const users = createLogins({ LEHR: 100 });
+//   logout();
+//   return { users };
+// }
+// export function teardown() {
+//   login(admin.getLogin());
+//   deleteAllTestUsers();
+//   logout();
+// }
 export default wrapTestFunction(main);
 
-function main({ users }: TestData) {
+function main(/*{ users }: TestData*/) {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
    */
@@ -52,7 +53,6 @@ function main({ users }: TestData) {
 
   group("submit form", () => {
     // submit form
-    const user = users[__VU - 1];
     keycloakFormResponse = loginPage.submitForm(loginPageResponse, user);
     check(keycloakFormResponse, {
       "submitting login form to kc succeeded": () =>
