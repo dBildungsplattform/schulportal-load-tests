@@ -54,6 +54,13 @@ class LoginPage implements PageObject {
           "password-new": newPassword,
           "password-confirm": newPassword,
         },
+        params: {
+          tags: {
+            name: removeQueryString(
+              response.html("form").attr("action") ?? "submit login form",
+            ),
+          },
+        },
       });
       if (response.status !== 200 && response.status !== 302) {
         fail("login failed");
