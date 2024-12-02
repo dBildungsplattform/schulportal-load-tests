@@ -18,6 +18,7 @@ type TestData = {
 
 export const options = {
   ...getDefaultOptions(),
+  setupTimeout: "180s",
 };
 const admin = new UserMix({ SYSADMIN: 1 });
 export function setup() {
