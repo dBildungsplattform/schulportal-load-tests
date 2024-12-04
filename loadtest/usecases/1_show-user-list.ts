@@ -12,16 +12,18 @@ import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
 import { login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultAdminMix } from "../util/users.ts";
+import { getDefaultAdminMix, UserMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
 };
+const admin = new UserMix({ SYSADMIN: 1 });
+const user = admin.getLogin();
 
 export default wrapTestFunction(main);
 
 function main(users = getDefaultAdminMix()) {
-  login(users.getLogin());
+  login(user);
   // these are used to test the filters
   let orgId = "";
   let rolleId = "";
