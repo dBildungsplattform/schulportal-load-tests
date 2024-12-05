@@ -4,14 +4,15 @@ export const MAX_VUS = Number.parseInt(__ENV["MAX_VUS"]);
 export enum CONFIG {
   SPIKE = "spike",
   STRESS = "stress",
-  BREAKPOINT = "breakpoint",
   PLATEAU = "plateau",
+  BREAKPOINT = "breakpoint",
   DEBUG = "debug",
 }
 export function getConfig(): CONFIG {
   const config = __ENV["CONFIG"];
   if (config == CONFIG.SPIKE.toString()) return CONFIG.SPIKE;
   if (config == CONFIG.STRESS.toString()) return CONFIG.STRESS;
+  if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.BREAKPOINT.toString()) return CONFIG.BREAKPOINT;
   if (config == CONFIG.PLATEAU.toString()) return CONFIG.PLATEAU;
   if (config == CONFIG.DEBUG.toString()) return CONFIG.DEBUG;
@@ -42,14 +43,6 @@ export function getDefaultOptions() {
           { duration: "1m", target: 0 }, // ramp down 3
         ],
       };
-    case CONFIG.BREAKPOINT:
-      return {
-        stages: [{ duration: "10m", target: maxVUs }],
-        thresholds: {
-          http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
-          http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
-        },
-      };
     case CONFIG.PLATEAU:
       return {
         stages: [
@@ -60,6 +53,14 @@ export function getDefaultOptions() {
           // ramp down
           { duration: "1m", target: 0 },
         ],
+      };
+    case CONFIG.BREAKPOINT:
+      return {
+        stages: [{ duration: "10m", target: maxVUs }],
+        thresholds: {
+          http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
+          http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
+        },
       };
     case CONFIG.DEBUG:
       return {

@@ -1,5 +1,5 @@
 import { fail } from "k6";
-import { batch, BatchRequest } from "k6/http";
+import { batch, BatchRequest, url } from "k6/http";
 import { CreateOrganisationBodyParams } from "../api-client/generated/models/CreateOrganisationBodyParams.ts";
 import { DbiamCreatePersonWithPersonenkontexteBodyParams } from "../api-client/generated/models/DbiamCreatePersonWithPersonenkontexteBodyParams.ts";
 import { DBiamPersonResponse } from "../api-client/generated/models/DBiamPersonResponse.ts";
@@ -161,7 +161,7 @@ export function deleteTestUsers(ids: Array<string>) {
     batch(
       ids.map((id) => ({
         method: "DELETE",
-        url: `${getBackendUrl()}personen/${id}`,
+        url: url`${getBackendUrl()}personen/${id}`,
       })),
     );
   } catch {
