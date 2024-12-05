@@ -1,12 +1,11 @@
 import { check, fail, group } from "k6";
 import { get } from "k6/http";
+import { logout } from "../pages/index.ts";
 import { getDefaultOptions } from "../util/config.ts";
 import { loadPage, login } from "../util/page.ts";
+import { createLogins, deleteAllTestUsers } from "../util/resource-helper.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 import { LoginData, UserMix } from "../util/users.ts";
-import { prettyLog } from "../util/debug.ts";
-import { createLogins, deleteAllTestUsers } from "../util/resource-helper";
-import { logout } from "../pages/index";
 
 type TestData = {
   users: Array<LoginData>;

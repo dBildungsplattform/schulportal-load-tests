@@ -1,5 +1,5 @@
 import { group } from "k6";
-import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse.ts";
 import { userListPage } from "../pages/user-list.ts";
 import {
   getLoginInfo,

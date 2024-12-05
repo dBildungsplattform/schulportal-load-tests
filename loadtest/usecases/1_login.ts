@@ -16,7 +16,7 @@ const admin = new UserMix({ SYSADMIN: 1 });
 const user = admin.getLogin();
 export default wrapTestFunction(main);
 
-function main(/*{ users }: TestData*/) {
+function main() {
   /**
    * URL for final login, which we obtain from keycloak during oidc-login
    */
