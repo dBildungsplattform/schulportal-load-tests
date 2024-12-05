@@ -1,41 +1,34 @@
 import { SharedArray } from "k6/data";
+import { RollenArt } from "../api-client/generated/models/RollenArt.ts";
 
 const DATAPATH = "../data/users.json";
 
 export type User = {
   username: string;
   password: string;
-  role: ROLE;
+  role: RollenArt;
 };
-export enum ROLE {
-  LERN = "LERN",
-  LEHR = "LEHR",
-  EXTERN = "EXTERN",
-  ORGADMIN = "ORGADMIN",
-  LEIT = "LEIT",
-  SYSADMIN = "SYSADMIN",
-}
 export type LoginData = Pick<User, "username" | "password">;
 
 // map a role to an absolute number of users
-function mapRoleToCount(role: ROLE): number {
+function mapRoleToCount(role: RollenArt): number {
   switch (role) {
-    case ROLE.LERN:
+    case RollenArt.Lern:
       return 2_000;
-    case ROLE.LEHR:
+    case RollenArt.Lehr:
       return 500;
-    case ROLE.EXTERN:
+    case RollenArt.Extern:
       return 0;
-    case ROLE.ORGADMIN:
+    case RollenArt.Orgadmin:
       return 0;
-    case ROLE.LEIT:
+    case RollenArt.Leit:
       return 1000;
-    case ROLE.SYSADMIN:
+    case RollenArt.Sysadmin:
       return 12;
   }
 }
 
-type UserRatio = Record<keyof typeof ROLE, number>;
+export type UserRatio = Record<RollenArt, number>;
 
 class LoopIterator<T> {
   readPosition = 0;
@@ -49,40 +42,43 @@ class LoopIterator<T> {
 /**
  * Map of roles to looping iterators of usernames and passwords from users.json
  */
-const groupedUsers = new Map<ROLE, LoopIterator<User>>();
+const groupedUsers = new Map<RollenArt, LoopIterator<User>>();
 const users = JSON.parse(open(DATAPATH)) as Array<User>;
-for (const [key, role] of Object.entries(ROLE)) {
+for (const [key, role] of Object.entries(RollenArt)) {
   const backingArray = new SharedArray(key, () =>
-    users.filter((user: User) => user.role == role),
+    users.filter((user: User) => {
+      return user.role == role;
+    }),
   );
   const iterator = new LoopIterator<User>(backingArray);
   groupedUsers.set(role, iterator);
 }
 
+export function getDefaultAdminRatio(): Partial<UserRatio> {
+  return {
+    SYSADMIN: mapRoleToCount(RollenArt.Sysadmin),
+    LEIT: mapRoleToCount(RollenArt.Leit),
+  };
+}
+
 export function getDefaultAdminMix(maxUsers?: number): UserMix {
-  return new UserMix(
-    {
-      SYSADMIN: mapRoleToCount(ROLE.SYSADMIN),
-      LEIT: mapRoleToCount(ROLE.LEIT),
-    },
-    maxUsers,
-  );
+  return new UserMix(getDefaultAdminRatio(), maxUsers);
 }
 
 export function getDefaultUserMix(maxUsers?: number): UserMix {
   return new UserMix(
     {
-      LEHR: mapRoleToCount(ROLE.LEHR),
-      LERN: mapRoleToCount(ROLE.LERN),
+      LEHR: mapRoleToCount(RollenArt.Lehr),
+      LERN: mapRoleToCount(RollenArt.Lern),
     },
     maxUsers,
   );
 }
 
 export class UserMix {
-  activeRoles: Array<ROLE>;
-  rolePool: LoopIterator<ROLE>;
-  tracker: Map<ROLE, number>;
+  activeRoles: Array<RollenArt>;
+  rolePool: LoopIterator<RollenArt>;
+  tracker: Map<RollenArt, number>;
   initialTracker: typeof this.tracker;
   maxUsers?: number;
 
@@ -90,7 +86,7 @@ export class UserMix {
     this.activeRoles = [];
     this.tracker = new Map();
     this.initialTracker = new Map();
-    for (const role of Object.values(ROLE)) {
+    for (const role of Object.values(RollenArt) as Array<RollenArt>) {
       if (ratio[role]) {
         this.activeRoles.push(role);
         this.initialTracker.set(role, ratio[role]);
@@ -111,22 +107,22 @@ export class UserMix {
 
   getUser(): User {
     const currentRole = this.getCurrentRole();
-    const user = groupedUsers.get(currentRole);
+    const user = groupedUsers.get(currentRole)?.next();
     if (!user)
       throw new Error(
         `user with requested role ${currentRole} is not present in ${DATAPATH}`,
       );
-    return user.next();
+    return user;
   }
 
-  getCurrentRole(): ROLE {
+  getCurrentRole(): RollenArt {
     if (this.isExhausted()) this.initializeTracker();
     const [currentRole, currentRoleCount] = this.getCurrentRoleAndCount();
     this.tracker.set(currentRole, currentRoleCount - 1);
     return currentRole;
   }
 
-  getCurrentRoleAndCount(): [ROLE, number] {
+  getCurrentRoleAndCount(): [RollenArt, number] {
     const role = this.rolePool.next();
     const count = this.tracker.get(role)!;
     return [role, count];

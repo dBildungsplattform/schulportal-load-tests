@@ -1,6 +1,6 @@
 import { check, fail, group } from "k6";
 import { vu } from "k6/execution";
-import { DBiamPersonenuebersichtResponse } from "../api-client/generated/index.ts";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse.ts";
 import { logout } from "../pages/index.ts";
 import { UserDetailsPage } from "../pages/user-details.ts";
 import { userListPage } from "../pages/user-list.ts";

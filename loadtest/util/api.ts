@@ -11,25 +11,23 @@ import {
   ResponseType,
   url,
 } from "k6/http";
-import {
-  CreateOrganisationBodyParams,
-  DbiamCreatePersonWithPersonenkontexteBodyParams,
-  DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response,
-  DBiamPersonenuebersichtResponse,
-  DBiamPersonResponse,
-  FindRollenResponse,
-  LockUserBodyParams,
-  OrganisationResponse,
-  ParentOrganisationenResponse,
-  PersonendatensatzResponse,
-  PersonenkontextWorkflowResponse,
-  PersonFrontendControllerFindPersons200Response,
-  PersonInfoResponse,
-  ServiceProviderResponse,
-  TokenRequiredResponse,
-  TokenStateResponse,
-  UserinfoResponse,
-} from "../api-client/generated/index.ts";
+import { CreateOrganisationBodyParams } from "../api-client/generated/models/CreateOrganisationBodyParams";
+import { DbiamCreatePersonWithPersonenkontexteBodyParams } from "../api-client/generated/models/DbiamCreatePersonWithPersonenkontexteBodyParams";
+import { DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response } from "../api-client/generated/models/DBiamPersonenuebersichtControllerFindPersonenuebersichten200Response";
+import { DBiamPersonenuebersichtResponse } from "../api-client/generated/models/DBiamPersonenuebersichtResponse";
+import { DBiamPersonResponse } from "../api-client/generated/models/DBiamPersonResponse";
+import { FindRollenResponse } from "../api-client/generated/models/FindRollenResponse";
+import { LockUserBodyParams } from "../api-client/generated/models/LockUserBodyParams";
+import { OrganisationResponse } from "../api-client/generated/models/OrganisationResponse";
+import { ParentOrganisationenResponse } from "../api-client/generated/models/ParentOrganisationenResponse";
+import { PersonendatensatzResponse } from "../api-client/generated/models/PersonendatensatzResponse";
+import { PersonenkontextWorkflowResponse } from "../api-client/generated/models/PersonenkontextWorkflowResponse";
+import { PersonFrontendControllerFindPersons200Response } from "../api-client/generated/models/PersonFrontendControllerFindPersons200Response";
+import { PersonInfoResponse } from "../api-client/generated/models/PersonInfoResponse";
+import { ServiceProviderResponse } from "../api-client/generated/models/ServiceProviderResponse";
+import { TokenRequiredResponse } from "../api-client/generated/models/TokenRequiredResponse";
+import { TokenStateResponse } from "../api-client/generated/models/TokenStateResponse";
+import { UserinfoResponse } from "../api-client/generated/models/UserinfoResponse";
 import {
   defaultHttpCheck,
   defaultTimingCheck,
@@ -53,6 +51,14 @@ export function removeQueryString(url: string): string {
   return url.split("?")[0];
 }
 
+export function transformQueryToTag(pairs?: Array<string>): string {
+  if (!pairs || pairs.length == 0) return "";
+  return pairs
+    .filter((p) => !p.endsWith("="))
+    .map((p) => p.slice(0, p.indexOf("=")))
+    .join();
+}
+
 export function makeHttpRequest(
   verb: "get" | "post" | "put" | "delete",
   resource: string,
@@ -60,21 +66,26 @@ export function makeHttpRequest(
     query: Array<string>;
     body: RequestBody;
     params: RefinedParams<ResponseType | undefined>;
+    url: ReturnType<typeof url>;
   }>,
 ) {
   const queryString = options?.query ? makeQueryString(options.query) : "";
-  const url = `${backendUrl}${resource}${queryString}`;
+  const url = options?.url
+    ? options.url
+    : `${backendUrl}${resource}${queryString}`;
   const response = request(verb.toUpperCase(), url, options?.body, {
     ...options?.params,
+    timeout: "70s",
     tags: {
       name: `${backendUrl}${resource}`,
       resource,
+      query: transformQueryToTag(options?.query),
     },
   });
   if (response.error || response.error_code)
-    prettyLog(
+    console.error(
       {
-        url: response.url,
+        url: removeQueryString(response.url),
         status: response.status,
         statusText: response.status_text,
         headers: response.headers,
@@ -192,7 +203,7 @@ export function deleteKlasse(id: string) {
 export function getPersonenIds(
   personen?: PersonFrontendControllerFindPersons200Response,
 ): Set<string> {
-  if (!personen) personen = getPersonen();
+  if (!personen) personen = getPersonen(["limit=30"]);
   return new Set(personen.items.map(({ person }) => person.id));
 }
 
@@ -215,7 +226,9 @@ export function getPersonInfo(query?: Array<string>) {
 }
 
 export function deletePersonById(id: string) {
-  const response = makeHttpRequest("delete", `personen/${id}`);
+  const response = makeHttpRequest("delete", `personen/${id}`, {
+    url: url`${backendUrl}personen/${id}`,
+  });
   check(response, {
     "got expected status": getStatusChecker(204),
     ...defaultTimingCheck,
@@ -322,7 +335,6 @@ export function getResetPassword(query: Array<string>) {
 }
 
 export function putPersonLock(personId: string, lock: boolean) {
-  // TODO: befristung
   const lockUserBodyParams: LockUserBodyParams = {
     lock,
     //@ts-expect-error openapi generator converts this to camelcase

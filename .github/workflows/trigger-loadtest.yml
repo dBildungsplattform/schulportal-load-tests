@@ -8,7 +8,7 @@ on:
         description: "Branch to take test code and helm/cron setup from"
         required: false
         type: string
-        default: main
+        default: "main"
       branch_img:
         description: "Branch to take Dockerfile/img from"
         required: false
@@ -23,7 +23,7 @@ on:
         description: "sets CONFIG env var used as k6 input"
         required: false
         type: string
-        default: "debug"
+        default: "plateau"
       max_vus:
         description: "sets the maximum number of virtual users"
         required: false

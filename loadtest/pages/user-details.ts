@@ -1,5 +1,5 @@
 import { group } from "k6";
-import { DBiamPersonenzuordnungResponse } from "../api-client/generated/index.ts";
+import { DBiamPersonenzuordnungResponse } from "../api-client/generated/models/DBiamPersonenzuordnungResponse";
 import {
   getLoginInfo,
   getParentOrganisationenByIds,

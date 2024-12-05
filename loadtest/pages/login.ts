@@ -37,6 +37,30 @@ class LoginPage implements PageObject {
     });
   }
 
+  initialLogin(user: LoginData, newPassword: string) {
+    group("initial login", () => {
+      let response;
+      this.navigate();
+      response = this.goToKeycloakLogin();
+      response = this.submitForm(response, user);
+      const resetUrl = response.headers["Location"];
+      response = get(resetUrl, {
+        tags: { name: removeQueryString(resetUrl) },
+      });
+      response.submitForm({
+        fields: {
+          username: user.username,
+          password: "",
+          "password-new": newPassword,
+          "password-confirm": newPassword,
+        },
+      });
+      if (response.status !== 200 && response.status !== 302) {
+        fail("login failed");
+      }
+    });
+  }
+
   goToKeycloakLogin() {
     const response = getLogin(["redirectUrl=/"]);
     loadLinkedResourcesAndCheck(response);
