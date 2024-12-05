@@ -12,7 +12,7 @@ import { getDefaultOptions } from "../util/config.ts";
 import { pickRandomItem } from "../util/data.ts";
 import { login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { getDefaultAdminMix, UserMix } from "../util/users.ts";
+import { UserMix } from "../util/users.ts";
 
 export const options = {
   ...getDefaultOptions(),
@@ -22,7 +22,7 @@ const user = admin.getLogin();
 
 export default wrapTestFunction(main);
 
-function main(users = getDefaultAdminMix()) {
+function main() {
   login(user);
   // these are used to test the filters
   let orgId = "";

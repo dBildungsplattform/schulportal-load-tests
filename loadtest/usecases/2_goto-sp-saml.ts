@@ -3,29 +3,44 @@ import { get } from "k6/http";
 import { getDefaultOptions } from "../util/config.ts";
 import { loadPage, login } from "../util/page.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
-import { UserMix } from "../util/users.ts";
+import { LoginData, UserMix } from "../util/users.ts";
 import { prettyLog } from "../util/debug.ts";
+import { createLogins, deleteAllTestUsers } from "../util/resource-helper";
+import { logout } from "../pages/index";
+
+type TestData = {
+  users: Array<LoginData>;
+};
 
 export const options = {
   ...getDefaultOptions(),
+  setupTimeout: "180s",
 };
+const admin = new UserMix({ SYSADMIN: 1 });
+export function setup() {
+  login(admin.getLogin());
+  deleteAllTestUsers();
+  const users = createLogins({ LEHR: 100 });
+  logout();
+  return { users };
+}
+export function teardown() {
+  login(admin.getLogin());
+  deleteAllTestUsers();
+  logout();
+}
 
 const serviceProviderName = "School-SH";
 
 export default wrapTestFunction(main);
 
-// function main(users = new UserMix({ LEHR: 1000 })) {
-function main(users = new UserMix({ SYSADMIN: 1 })) {
-  // const { providers } = login(users.getLogin());
-  login(users.getLogin());
+function main({ users }: TestData) {
+  const { providers } = login(users[__VU - 1]);
 
   const response = group("follow link", () => {
-    // const target = providers.find((p) => p.name == serviceProviderName);
-    // if (!target) fail(`could not find sp ${serviceProviderName}`);
-    // return loadPage(target.url);
-    return get("https://141.91.161.139", {
-      tags: { name: "navigate to dWebtor" },
-    });
+    const target = providers.find((p) => p.name == serviceProviderName);
+    if (!target) fail(`could not find sp ${serviceProviderName}`);
+    return loadPage(target.url);
   });
 
   group("finish saml", () => {
@@ -59,17 +74,9 @@ function main(users = new UserMix({ SYSADMIN: 1 })) {
       tags: { name: "redirect to school-sh login" },
     });
     check(redirectResponse, {
-      "reached dWebtor error page": (r) => {
-        return r.html().find(".box").text().includes("dWebTor School-SH PROD");
-      },
-      "got 402": (r) => {
-        return r.status == 402;
+      "reached school-sh login": (r) => {
+        return r.html().find("#loginBox").text().includes("Anmeldung");
       },
     });
-    // check(redirectResponse, {
-    //   "reached school-sh login": (r) => {
-    //     return r.html().find("#loginBox").text().includes("Anmeldung");
-    //   },
-    // });
   });
 }
