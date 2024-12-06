@@ -7,6 +7,9 @@ config: "dummy_config"
 max_vus: "10"
 
 cronjobs:
+  current:
+    serviceName: spsh-1378
+    spsh_base: "https://spsh-1378.dev.spsh.dbildungsplattform.de"
   dev-scenario:
     serviceName: dev-scenario
     spsh_base: "https://main.dev.spsh.dbildungsplattform.de"
