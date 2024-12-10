@@ -10,8 +10,8 @@ In the dialog enter the following and replace the UPPERCASE words in the right c
 
 | Field | Value |
 | --- | --- |
-| Use workflow from | SPSH-1371 |
-| Branch to take tests and helm/cron setup from | SPSH-1371 |
+| Use workflow from | main |
+| Branch to take tests and helm/cron setup from | main |
 | sets PATTERN env var used as k6 input | PATTERN |
 | sets CONFIG env var used as k6 input | CONFIG |
 | name of test scenario defined in values.yaml | SCENARIO |
