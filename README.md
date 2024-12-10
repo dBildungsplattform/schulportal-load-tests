@@ -8,8 +8,10 @@ Go to Actions > Trigger Loadtest > Run workflow.
 
 In the dialog enter the following and replace the UPPERCASE words in the right column with the appropriate values (see explanation below).
 
-| Use workflow from | DBP-1012-setup-loadtest-env |
-| Branch to take tests and helm/cron setup from | main |
+| Field | Value |
+| --- | --- |
+| Use workflow from | SPSH-1371 |
+| Branch to take tests and helm/cron setup from | SPSH-1371 |
 | sets PATTERN env var used as k6 input | PATTERN |
 | sets CONFIG env var used as k6 input | CONFIG |
 | name of test scenario defined in values.yaml | SCENARIO |
@@ -17,9 +19,51 @@ In the dialog enter the following and replace the UPPERCASE words in the right c
 
 ### Values explained
 
+| Value | Description |
+| --- | --- |
 | PATTERN | a glob that matches a file in `loadtest/usecases`, i.e. `1` or `login` |
-| CONFIG | one of spike, stress, breakpoint, debug; see `loadtest/util/config.ts` |
+| CONFIG | one of spike, stress, breakpoint, debug, plateau; see `loadtest/util/config.ts` |
 | SCENARIO | target environment; one of dev-scenario, staging-scenario, prod-scenario; see `charts/schulportal-load-tests/values.yaml` |
+
+### Notes
+#### Adding different load patterns
+In `loadtest/util/config.ts` define an entry in the enum, extend the function that converts strings into enum values and add your desired configs.
+
+```typescript
+export enum CONFIG {
+  YOURCONFIG = "yourconfig",
+  // ...
+}
+export function getConfig(): CONFIG {
+  const config = __ENV["CONFIG"];
+  if (config == CONFIG.YOURCONFIG.toString()) return CONFIG.YOURCONFIG;
+  // ...
+}
+
+export function getDefaultOptions() {
+  const config = getConfig();
+  const maxVUs = MAX_VUS ?? 10;
+  switch (config) {
+    case CONFIG.YOURCONFIG:
+      return {
+        stages: [
+          { duration: "30s", target: maxVUs }, // ramp up to maxVUs
+          { duration: "30s", target: maxVUs }, // hold
+          { duration: "10s", target: 0 }, // ramp down
+        ],
+        // OPTIONAL: conditions to stop the test early
+        thresholds: {
+          http_req_failed: [{ threshold: "rate<0.10", abortOnFail: true }],
+          http_req_duration: [{ threshold: "p(95)<5000", abortOnFail: true }],
+        },
+      };
+      // ...
+  }
+}
+```
+
+#### Running against different environments
+In `charts/schulportal-load-tests/values.yaml` define a scenario with your desired base-url.
 
 ## Local
 
@@ -45,6 +89,7 @@ Tests are categorized as
 spike
 stress
 breakpoint
+plateau
 ```
 
 To run all usecases with the stress-configuration against `https://example.env/`:
