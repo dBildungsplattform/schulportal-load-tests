@@ -8,7 +8,7 @@ import { getRandomName } from "../util/data.ts";
 import { wrapTestFunction } from "../util/usecase-wrapper.ts";
 
 const usersPerIteration = Number.parseInt(__ENV["USERS_PER_ITERATION"]) || 10;
-const vus = Math.min(10, usersPerIteration); // KC won't allow more than 10
+const vus = 10; // KC does not like more than 10 concurrent users
 const username = __ENV["USERNAME"];
 const password = __ENV["PASSWORD"];
 
